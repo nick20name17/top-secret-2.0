@@ -4,7 +4,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import '@/index.css'
-import { ThemeProvider } from '@/components/theme-provider'
+import { ThemeProvider } from '@/features/theme/theme-provider'
 import { queryClient } from '@/lib/query-client'
 import { router } from '@/router'
 

@@ -6,7 +6,7 @@ import {
   themeSchema,
   type ResolvedTheme,
   type Theme,
-} from '@/hooks/use-theme'
+} from '@/features/theme/lib/theme-context'
 
 interface ThemeProviderProps {
   children: ReactNode
@@ -35,27 +35,29 @@ function writeStoredTheme(theme: Theme) {
   }
 }
 
-const darkSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
+const systemDarkThemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
 
 function subscribeToSystemTheme(onChange: () => void) {
-  darkSchemeQuery.addEventListener('change', onChange)
-  return () => darkSchemeQuery.removeEventListener('change', onChange)
+  systemDarkThemeQuery.addEventListener('change', onChange)
+  return () => systemDarkThemeQuery.removeEventListener('change', onChange)
 }
 
 function getSystemTheme(): ResolvedTheme {
-  return darkSchemeQuery.matches ? 'dark' : 'light'
+  return systemDarkThemeQuery.matches ? 'dark' : 'light'
 }
 
-function applyTheme(theme: ResolvedTheme) {
-  if (document.documentElement.classList.contains(theme)) return
+function applyTheme(resolvedTheme: ResolvedTheme) {
+  if (document.documentElement.classList.contains(resolvedTheme)) return
 
   const style = document.createElement('style')
   style.textContent = '*,*::before,*::after{transition:none!important}'
   document.head.appendChild(style)
 
   document.documentElement.classList.remove('light', 'dark')
-  document.documentElement.classList.add(theme)
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme])
+  document.documentElement.classList.add(resolvedTheme)
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', THEME_COLORS[resolvedTheme])
 
   window.getComputedStyle(document.body)
   requestAnimationFrame(() => requestAnimationFrame(() => style.remove()))
@@ -76,8 +78,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [resolvedTheme])
 
   return (
-    <ThemeProviderContext.Provider value={{ theme, resolvedTheme, setTheme }}>
+    <ThemeProviderContext value={{ theme, resolvedTheme, setTheme }}>
       {children}
-    </ThemeProviderContext.Provider>
+    </ThemeProviderContext>
   )
 }

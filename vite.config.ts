@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import { playwright } from '@vitest/browser-playwright'
+import { msw } from 'msw/vite'
 import { defineConfig } from 'vitest/config'
 
 import { parseEnv } from './src/lib/env.ts'
@@ -19,6 +20,7 @@ export default defineConfig(({ mode }) => ({
         parseEnv(config.env)
       },
     },
+    mode === 'test' && msw({ mode: 'worker-only' }),
   ],
   resolve: { tsconfigPaths: true },
   optimizeDeps: { force: mode === 'test' },

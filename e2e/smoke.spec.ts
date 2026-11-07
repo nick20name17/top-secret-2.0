@@ -10,7 +10,7 @@ test('unknown URL shows the not found page', async ({ page }) => {
 test.describe('theme', () => {
   test.use({ colorScheme: 'dark' })
 
-  test('follows the system color scheme', async ({ page }) => {
+  test('follows the system theme', async ({ page }) => {
     await page.goto('/')
 
     await expect(page.locator('html')).toHaveClass(/\bdark\b/)

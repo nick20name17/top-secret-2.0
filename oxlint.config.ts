@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from 'node:fs'
+
 import query from '@tanstack/eslint-plugin-query'
 import router from '@tanstack/eslint-plugin-router'
 import playwright from 'eslint-plugin-playwright'
@@ -42,6 +44,110 @@ const testRules: Rules = {
 
 const compilerMessage =
   'React Compiler memoizes automatically: write plain values, functions and components.'
+
+const restrictedPaths = [
+  {
+    name: 'react',
+    importNames: ['default'],
+    message: "Use named imports: import { useEffect } from 'react', not React.useEffect.",
+  },
+  {
+    name: 'react',
+    importNames: ['useMemo', 'useCallback', 'memo'],
+    message: compilerMessage,
+  },
+  {
+    name: '@tanstack/react-router',
+    importNames: ['useLoaderData'],
+    message:
+      'Loaders only fill the Query cache. Read the data with useSuspenseQuery and the same queryOptions, so the query stays fresh.',
+  },
+]
+
+interface ImportPattern {
+  group: string[]
+  message: string
+}
+
+const zodPattern: ImportPattern = { group: ['zod', 'zod/**', '!zod/mini'], message: zodMessage }
+
+const privateMessage =
+  "A feature's root files are its interface; its subfolders are private. Import a root file, or add one."
+const featurePrivate: ImportPattern = { group: ['@/features/*/*/**'], message: privateMessage }
+const appShell = ['@/routes/**', '@/router', '@/routeTree.gen', '@/main']
+
+const basePatterns: ImportPattern[] = [
+  zodPattern,
+  {
+    group: ['@testing-library/**'],
+    message:
+      "Vitest browser mode has this built in: render from 'vitest-browser-react'; page and userEvent from 'vitest/browser'; matchers on expect.element.",
+  },
+]
+const testPrivate: ImportPattern = {
+  group: featurePrivate.group,
+  message: 'Test a feature through its root files, not its private subfolders.',
+}
+
+function restrictedImports(...patterns: ImportPattern[]): Rules['no-restricted-imports'] {
+  return [
+    'error',
+    {
+      paths: restrictedPaths,
+      patterns: [
+        ...basePatterns,
+        {
+          group: ['./**', '../**'],
+          message: "Import with '@/', so the module boundary rules can see the path.",
+        },
+        ...patterns,
+      ],
+    },
+  ]
+}
+
+// An override replaces the whole rule, so tests get their folder's boundaries plus their own
+function boundaries(
+  dirs: string[],
+  patterns: ImportPattern[],
+  testPatterns = [...patterns, testPrivate],
+) {
+  return [
+    {
+      files: dirs.map((dir) => `${dir}/**`),
+      rules: { 'no-restricted-imports': restrictedImports(...patterns) },
+    },
+    {
+      files: dirs.map((dir) => `${dir}/**/*.test.{ts,tsx}`),
+      rules: { 'no-restricted-imports': restrictedImports(...testPatterns) },
+    },
+  ]
+}
+
+const featuresDir = new URL('src/features/', import.meta.url)
+const features = existsSync(featuresDir)
+  ? readdirSync(featuresDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+  : []
+
+const featureOverrides = features.flatMap((feature) => {
+  const shellPattern: ImportPattern = {
+    group: appShell,
+    message:
+      'Routes compose features, never the other way round. Pass what the feature needs as props or arguments.',
+  }
+  const ownPrivate: ImportPattern = {
+    group: [...featurePrivate.group, `!@/features/${feature}/**`],
+    message: privateMessage,
+  }
+  // oxlint merges every group into one set, so the ! exception would also lift testPrivate
+  return boundaries(
+    [`src/features/${feature}`],
+    [ownPrivate, shellPattern],
+    [testPrivate, shellPattern],
+  )
+})
 
 export default defineConfig({
   plugins: ['typescript', 'react', 'jsx-a11y', 'oxc', 'unicorn', 'import', 'promise', 'vitest'],
@@ -102,35 +208,7 @@ export default defineConfig({
         location: 'anywhere',
       },
     ],
-    'no-restricted-imports': [
-      'error',
-      {
-        paths: [
-          {
-            name: 'react',
-            importNames: ['default'],
-            message: "Use named imports: import { useEffect } from 'react', not React.useEffect.",
-          },
-          {
-            name: 'react',
-            importNames: ['useMemo', 'useCallback', 'memo'],
-            message: compilerMessage,
-          },
-          {
-            name: '@tanstack/react-router',
-            importNames: ['useLoaderData'],
-            message:
-              'Loaders only fill the Query cache. Read the data with useSuspenseQuery and the same queryOptions, so the query stays fresh.',
-          },
-        ],
-        patterns: [
-          {
-            group: ['zod', 'zod/**', '!zod/mini'],
-            message: zodMessage,
-          },
-        ],
-      },
-    ],
+    'no-restricted-imports': restrictedImports(featurePrivate),
 
     'typescript/ban-ts-comment': 'error',
     'typescript/consistent-return': 'off',
@@ -209,6 +287,28 @@ export default defineConfig({
   },
   ignorePatterns: ['src/routeTree.gen.ts', '.claude/skills/**'],
   overrides: [
+    {
+      files: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
+      rules: { 'no-restricted-imports': restrictedImports(testPrivate) },
+    },
+    ...boundaries(
+      ['src/components', 'src/hooks', 'src/lib'],
+      [
+        {
+          group: ['@/features/**', ...appShell],
+          message:
+            'Shared code must not know about features or the app shell. Move the code into the feature.',
+        },
+      ],
+    ),
+    ...featureOverrides,
+    {
+      files: ['*.config.ts', 'e2e/**'],
+      rules: {
+        'no-restricted-imports': ['error', { paths: restrictedPaths, patterns: basePatterns }],
+        'max-lines': 'off',
+      },
+    },
     {
       files: ['src/components/ui/**'],
       rules: {

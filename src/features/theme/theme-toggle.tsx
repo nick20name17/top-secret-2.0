@@ -1,7 +1,7 @@
 import { MoonIcon, SunIcon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { useTheme } from '@/hooks/use-theme'
+import { useTheme } from '@/features/theme/use-theme'
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme()
