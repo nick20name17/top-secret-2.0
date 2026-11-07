@@ -1,14 +1,36 @@
-import { resolve } from "node:path"
-import tailwindcss from "@tailwindcss/vite"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import babel from '@rolldown/plugin-babel'
+import tailwindcss from '@tailwindcss/vite'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import { playwright } from '@vitest/browser-playwright'
+import { defineConfig } from 'vitest/config'
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      "@": resolve(import.meta.dirname, "./src"),
+import { parseEnv } from './src/lib/env.ts'
+
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    tanstackRouter({ autoCodeSplitting: true }),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
+    tailwindcss(),
+    {
+      name: 'validate-env',
+      configResolved: (config) => {
+        parseEnv(config.env)
+      },
+    },
+  ],
+  resolve: { tsconfigPaths: true },
+  optimizeDeps: { force: mode === 'test' },
+  test: {
+    include: ['src/**/*.test.{ts,tsx}'],
+    passWithNoTests: true,
+    setupFiles: ['src/test/setup.ts'],
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      headless: true,
+      instances: [{ browser: 'chromium' }],
     },
   },
-})
+}))

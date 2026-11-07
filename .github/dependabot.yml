@@ -1,0 +1,46 @@
+version: 2
+
+updates:
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+    # Matches minimumReleaseAge in bunfig.toml
+    cooldown:
+      default-days: 3
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore
+      include: scope
+    ignore:
+      # The types match the Node major in .nvmrc: bump them together
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+    groups:
+      react:
+        patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
+      tanstack-query:
+        patterns: ['@tanstack/react-query', '@tanstack/eslint-plugin-query']
+      tanstack-router:
+        patterns: ['@tanstack/react-router', '@tanstack/router-*', '@tanstack/eslint-plugin-router']
+      tailwind:
+        patterns: ['tailwindcss', '@tailwindcss/*']
+      vite:
+        patterns: ['vite', '@vitejs/*', '@rolldown/*']
+      vitest:
+        patterns: ['vitest', '@vitest/*', 'vitest-browser-react']
+      playwright:
+        patterns: ['playwright', '@playwright/*']
+      oxc:
+        patterns: ['oxlint', 'oxlint-tsgolint', 'oxfmt']
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: ci
