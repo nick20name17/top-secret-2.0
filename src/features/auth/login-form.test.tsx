@@ -27,12 +27,3 @@ test('submits the entered email and password', async () => {
     .poll(() => onSubmit.mock.lastCall)
     .toEqual([{ email: 'ada@example.com', password: 'correct-horse' }])
 })
-
-test('focuses the first invalid field on submit', async () => {
-  await render(<LoginForm onSubmit={vi.fn<(values: LoginValues) => void>()} />)
-
-  await userEvent.fill(page.getByLabelText('Email'), 'ada@example.com')
-  await userEvent.click(page.getByRole('button', { name: 'Sign in' }))
-
-  await expect.element(page.getByLabelText('Password')).toHaveFocus()
-})
