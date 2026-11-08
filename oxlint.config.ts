@@ -316,6 +316,8 @@ export default defineConfig({
         'shadcn/no-arbitrary-values': 'off',
         'react/only-export-components': 'off',
         'jsx-a11y/prefer-tag-over-role': 'off',
+        // Wrappers like Label get htmlFor from the caller
+        'jsx-a11y/label-has-associated-control': 'off',
         'max-lines': 'off',
         'max-lines-per-function': 'off',
         complexity: 'off',

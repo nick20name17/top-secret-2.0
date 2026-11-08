@@ -17,5 +17,7 @@ dist
 # Playwright
 test-results
 playwright-report
+# Vitest browser failure screenshots
+.vitest/
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
