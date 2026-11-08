@@ -159,33 +159,35 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    @apply scrollbar-gutter-stable font-sans not-any-pointer-coarse:overscroll-y-none;
+    interpolate-size: allow-keywords;
+    font-synthesis: none;
+  }
+
   body {
-    @apply bg-background text-foreground antialiased;
-    padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+    @apply bg-background ps-[env(safe-area-inset-left)] pe-[env(safe-area-inset-right)] text-foreground antialiased;
+  }
+
+  #root {
+    @apply isolate;
   }
 
   button:not(:disabled),
   [role='button']:not(:disabled) {
-    cursor: pointer;
+    @apply cursor-pointer;
   }
 
-  html {
-    @apply scrollbar-gutter-stable font-sans;
-    interpolate-size: allow-keywords;
-  }
-
-  @media not (any-pointer: coarse) {
-    html {
-      overscroll-behavior-y: none;
-    }
+  :where(a, button, input, label, select, summary, textarea, [role='button']) {
+    @apply touch-manipulation;
   }
 
   :where(h1, h2, h3, h4, h5, h6) {
-    text-wrap: balance;
+    @apply text-balance;
   }
 
   :where(p, li, dd, blockquote, figcaption) {
-    text-wrap: pretty;
+    @apply text-pretty;
   }
 
   @media (prefers-reduced-motion: reduce) {
