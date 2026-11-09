@@ -14,7 +14,6 @@ function setToken({ request }: { request: KyRequest }) {
   if (session) request.headers.set('Authorization', `Bearer ${session.accessToken}`)
 }
 
-// The lock spans tabs: one refresh at a time, and a request that waited reuses its result
 function refreshSession(sentAuthorization: string | null) {
   return navigator.locks.request('session-refresh', async (): Promise<Session | undefined> => {
     const session = getSession()
@@ -27,7 +26,6 @@ function refreshSession(sentAuthorization: string | null) {
       setSession(fresh)
       return fresh
     } catch (error) {
-      // Only a rejected refresh token ends the session, not a network or server error
       if (isHTTPError(error) && error.response.status < 500) clearSession()
       return undefined
     }

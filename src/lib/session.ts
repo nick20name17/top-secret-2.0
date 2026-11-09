@@ -1,6 +1,6 @@
 import { z } from 'zod/mini'
 
-const SESSION_KEY = 'session'
+export const SESSION_KEY = 'session'
 
 export const sessionSchema = z.object({ accessToken: z.string(), refreshToken: z.string() })
 

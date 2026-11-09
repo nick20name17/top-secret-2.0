@@ -1,7 +1,7 @@
-import { HttpResponse, http } from 'msw'
-import { expect, test } from 'vitest'
+import { HttpResponse, delay, http } from 'msw'
+import { expect, onTestFinished, test, vi } from 'vitest'
 
-import { api } from '@/lib/api'
+import { api, getErrorMessage } from '@/lib/api'
 import { getSession, setSession } from '@/lib/session'
 import { worker } from '@/test/msw'
 
@@ -145,4 +145,33 @@ test('a 401 while another tab refreshes waits for it and refreshes no more', asy
 
   await expect(response).resolves.toEqual({ method: 'GET', body: null })
   expect(refreshes).toBe(0)
+})
+
+function errorOf(request: Promise<unknown>) {
+  return request.then(
+    () => expect.unreachable('The request did not fail'),
+    (error: unknown) => error,
+  )
+}
+
+test('a request that takes too long gets a timeout message', async () => {
+  vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  onTestFinished(() => void vi.useRealTimers())
+  worker.use(http.post('*/notes', () => delay('infinite')))
+
+  const error = errorOf(api.post('notes').json())
+  await vi.advanceTimersByTimeAsync(15_000)
+
+  expect(getErrorMessage(await error)).toBe('The server took too long to respond. Try again.')
+})
+
+test.each([
+  ['an empty message', { message: '' }],
+  ['no message', { error: 'Bad' }],
+])('an API error with %s gets the general message', async (_, body) => {
+  worker.use(http.post('*/notes', () => HttpResponse.json(body, { status: 400 })))
+
+  const error = await errorOf(api.post('notes').json())
+
+  expect(getErrorMessage(error)).toBe('Something went wrong. Try again.')
 })

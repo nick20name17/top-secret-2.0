@@ -1,9 +1,9 @@
 import { HttpResponse, http } from 'msw'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { page, userEvent } from 'vitest/browser'
 
 import { APP_NAME } from '@/lib/app-name'
-import { setSession } from '@/lib/session'
+import { SESSION_KEY, setSession } from '@/lib/session'
 import { worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
 
@@ -88,4 +88,88 @@ test('a session the API no longer accepts opens the sign-in page, not an error',
   await renderRoute('/profile')
 
   await expect.element(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
+})
+
+test('signing out in another tab opens the sign-in page', async () => {
+  signIn()
+  await renderRoute('/profile')
+  await expect.element(page.getByRole('heading', { name: 'Emily Johnson' })).toBeVisible()
+
+  // The other tab's removeItem fires a storage event in this one
+  localStorage.removeItem(SESSION_KEY)
+  window.dispatchEvent(new StorageEvent('storage', { key: SESSION_KEY }))
+
+  await expect.element(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
+})
+
+test('a broken stored session opens the sign-in page', async () => {
+  localStorage.setItem(SESSION_KEY, '{broken')
+  await renderRoute('/profile')
+
+  await expect.element(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
+})
+
+test('an API error while signed in shows the error page and keeps the session', async () => {
+  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1' })
+  worker.use(
+    http.get(`${apiUrl}/auth/me`, () => HttpResponse.json({ message: 'Gone' }, { status: 404 })),
+  )
+  await renderRoute('/profile')
+
+  await expect.element(page.getByRole('heading', { name: 'Something went wrong' })).toBeVisible()
+  await expect.element(page.getByText(/404 Not Found/)).toBeVisible()
+  vi.mocked(console.error).mockClear()
+})
+
+test('signing in without a redirect opens the home page', async () => {
+  worker.use(
+    http.post(`${apiUrl}/auth/login`, () =>
+      HttpResponse.json({ ...user, accessToken: 'access-1', refreshToken: 'refresh-1' }),
+    ),
+  )
+  await renderRoute('/login')
+
+  await userEvent.fill(page.getByLabelText('Username'), 'emilys')
+  await userEvent.fill(page.getByLabelText('Password'), 'emilyspass')
+  await userEvent.click(page.getByRole('button', { name: 'Sign in' }))
+
+  await expect.element(page.getByRole('heading', { name: APP_NAME })).toBeVisible()
+})
+
+test('a signed-in user opening sign-in goes to the home page', async () => {
+  signIn()
+  await renderRoute('/login')
+
+  await expect.element(page.getByRole('heading', { name: APP_NAME })).toBeVisible()
+})
+
+test('empty fields show what to fill in and send nothing', async () => {
+  let requests = 0
+  worker.use(
+    http.post(`${apiUrl}/auth/login`, () => {
+      requests += 1
+      return HttpResponse.json({ message: 'Unexpected' }, { status: 400 })
+    }),
+  )
+  await renderRoute('/login')
+
+  await userEvent.fill(page.getByLabelText('Username'), '   ')
+  await userEvent.click(page.getByRole('button', { name: 'Sign in' }))
+
+  await expect.element(page.getByText('Enter your username')).toBeVisible()
+  await expect.element(page.getByText('Enter your password')).toBeVisible()
+  expect(requests).toBe(0)
+})
+
+test('a network failure while signing in asks to check the connection', async () => {
+  worker.use(http.post(`${apiUrl}/auth/login`, () => HttpResponse.error()))
+  await renderRoute('/login')
+
+  await userEvent.fill(page.getByLabelText('Username'), 'emilys')
+  await userEvent.fill(page.getByLabelText('Password'), 'emilyspass')
+  await userEvent.click(page.getByRole('button', { name: 'Sign in' }))
+
+  await expect
+    .element(page.getByRole('alert'))
+    .toHaveTextContent('Check your internet connection and try again.')
 })
