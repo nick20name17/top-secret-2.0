@@ -27,7 +27,7 @@ if [ "$(field hook_event_name)" = "UserPromptSubmit" ]; then
   exit 0
 fi
 
-# Skip a tree unchanged since the prompt or last run, so Claude can stop after reporting a failure
+# Skip a tree unchanged since the prompt or last failure, so Claude can stop
 current=$(tree_hash)
 for file in "$baseline_file" "$failed_file"; do
   if [ -f "$file" ] && [ "$(cat "$file")" = "$current" ]; then
@@ -37,7 +37,7 @@ done
 
 mkdir -p "$cache_dir"
 if output=$(export NO_COLOR=1 FORCE_COLOR=0; bun run format 2>&1 >/dev/null && bun run check 2>&1); then
-  # A turn can start without a prompt (a background task finished), leaving the baseline stale
+  # A turn without a prompt (a background task finished) leaves the baseline stale
   tree_hash >"$baseline_file"
   exit 0
 fi
@@ -50,5 +50,5 @@ tree_hash >"$failed_file"
   echo
   echo "$output" | tail -n 100
 } >&2
-# Only exit 2 sends stderr to Claude, other codes just show it to the user
+# Only exit 2 sends stderr to Claude
 exit 2

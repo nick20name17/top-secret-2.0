@@ -3,7 +3,7 @@ dist
 *.local
 *.log
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -17,7 +17,7 @@ dist
 # Playwright
 test-results
 playwright-report
-# Vitest browser failure screenshots
+# Vitest failure screenshots
 .vitest/
-# Playwright CLI output (may contain credentials)
+# Playwright CLI (may contain credentials)
 .playwright-cli/

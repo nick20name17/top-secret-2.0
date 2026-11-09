@@ -13,7 +13,7 @@ updates:
       prefix: chore
       include: scope
     ignore:
-      # The types match the Node major in .nvmrc: bump them together
+      # Bump together with the Node major in .nvmrc
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
     groups:

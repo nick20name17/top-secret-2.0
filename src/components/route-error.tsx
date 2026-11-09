@@ -17,7 +17,7 @@ export function RouteError({ error }: ErrorComponentProps) {
   const router = useRouter()
   const queryErrorResetBoundary = useQueryErrorResetBoundary()
 
-  // Lets "Try again" refetch queries that threw into this boundary
+  // Lets "Try again" refetch the queries that threw
   useEffect(() => {
     queryErrorResetBoundary.reset()
   }, [queryErrorResetBoundary])

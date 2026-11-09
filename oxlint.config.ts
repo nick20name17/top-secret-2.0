@@ -106,7 +106,7 @@ function restrictedImports(...patterns: ImportPattern[]): Rules['no-restricted-i
   ]
 }
 
-// An override replaces the whole rule, so tests get their folder's boundaries plus their own
+// An override replaces the whole rule, so tests repeat their folder's boundaries
 function boundaries(
   dirs: string[],
   patterns: ImportPattern[],
@@ -141,7 +141,7 @@ const featureOverrides = features.flatMap((feature) => {
     group: [...featurePrivate.group, `!@/features/${feature}/**`],
     message: privateMessage,
   }
-  // oxlint merges every group into one set, so the ! exception would also lift testPrivate
+  // oxlint merges all groups, so this ! would also lift testPrivate
   return boundaries(
     [`src/features/${feature}`],
     [ownPrivate, shellPattern],
@@ -271,7 +271,7 @@ export default defineConfig({
     'import/no-duplicates': 'error',
     'import/no-mutable-exports': 'error',
     'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],
-    // src/test/setup.ts checks console.error after every test
+    // src/test/setup.ts asserts in afterEach
     'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: ['afterEach'] }],
     'oxc/no-barrel-file': ['error', { threshold: 0 }],
 
