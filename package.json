@@ -70,5 +70,6 @@
   "overrides": {
     "minimatch": "11.0.4"
   },
-  "packageManager": "bun@1.4.4"
+  "packageManager": "bun@1.4.4",
+  "trustedDependencies": []
 }
