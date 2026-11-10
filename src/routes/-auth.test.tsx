@@ -9,10 +9,10 @@ import { renderRoute } from '@/test/render-route'
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-const user = { firstName: 'Emily', lastName: 'Johnson', email: 'emily@example.com' }
+const user = { id: 1, firstName: 'Emily', lastName: 'Johnson', email: 'emily@example.com' }
 
 function signIn() {
-  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1' })
+  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
   worker.use(http.get(`${apiUrl}/auth/me`, () => HttpResponse.json(user)))
 }
 
@@ -76,7 +76,7 @@ test.each(['//evil.example', '/%5C/evil.example', '/%09/evil.example'])(
 )
 
 test('a session the API no longer accepts opens the sign-in page, not an error', async () => {
-  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1' })
+  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
   worker.use(
     http.get(`${apiUrl}/auth/me`, () =>
       HttpResponse.json({ message: 'Invalid/Expired Token!' }, { status: 401 }),
@@ -102,6 +102,34 @@ test('signing out in another tab opens the sign-in page', async () => {
   await expect.element(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
 })
 
+test('signing in as another user in another tab shows that user', async () => {
+  const usersByToken: Record<string, typeof user> = {
+    'Bearer access-1': user,
+    'Bearer access-2': {
+      id: 2,
+      firstName: 'Michael',
+      lastName: 'Williams',
+      email: 'michael@example.com',
+    },
+  }
+  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
+  worker.use(
+    http.get(`${apiUrl}/auth/me`, ({ request }) =>
+      HttpResponse.json(usersByToken[String(request.headers.get('Authorization'))]),
+    ),
+  )
+  await renderRoute('/profile')
+  await expect.element(page.getByRole('heading', { name: 'Emily Johnson' })).toBeVisible()
+
+  localStorage.setItem(
+    SESSION_KEY,
+    JSON.stringify({ accessToken: 'access-2', refreshToken: 'refresh-2', userId: 2 }),
+  )
+  window.dispatchEvent(new StorageEvent('storage', { key: SESSION_KEY }))
+
+  await expect.element(page.getByRole('heading', { name: 'Michael Williams' })).toBeVisible()
+})
+
 test('a broken stored session opens the sign-in page', async () => {
   localStorage.setItem(SESSION_KEY, '{broken')
   await renderRoute('/profile')
@@ -110,7 +138,7 @@ test('a broken stored session opens the sign-in page', async () => {
 })
 
 test('an API error while signed in shows the error page and keeps the session', async () => {
-  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1' })
+  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
   worker.use(
     http.get(`${apiUrl}/auth/me`, () => HttpResponse.json({ message: 'Gone' }, { status: 404 })),
   )

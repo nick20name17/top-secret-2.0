@@ -2,7 +2,10 @@ import { z } from 'zod/mini'
 
 export const SESSION_KEY = 'session'
 
-export const sessionSchema = z.object({ accessToken: z.string(), refreshToken: z.string() })
+export const tokensSchema = z.object({ accessToken: z.string(), refreshToken: z.string() })
+
+// userId tells a token refresh from another user signing in
+export const sessionSchema = z.extend(tokensSchema, { userId: z.number() })
 
 export type Session = z.infer<typeof sessionSchema>
 

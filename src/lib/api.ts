@@ -1,7 +1,7 @@
 import ky, { type KyRequest, isHTTPError, isNetworkError, isTimeoutError } from 'ky'
 import { z } from 'zod/mini'
 
-import { type Session, clearSession, getSession, sessionSchema, setSession } from '@/lib/session'
+import { type Session, clearSession, getSession, setSession, tokensSchema } from '@/lib/session'
 
 const base = ky.create({
   prefix: import.meta.env.VITE_API_URL,
@@ -20,9 +20,10 @@ function refreshSession(sentAuthorization: string | null) {
     if (!session || `Bearer ${session.accessToken}` !== sentAuthorization) return session
 
     try {
-      const fresh = await base
+      const tokens = await base
         .post('auth/refresh', { json: { refreshToken: session.refreshToken }, retry: 0 })
-        .json(sessionSchema)
+        .json(tokensSchema)
+      const fresh = { ...session, ...tokens }
       setSession(fresh)
       return fresh
     } catch (error) {

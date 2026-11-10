@@ -5,6 +5,7 @@ import { api } from '@/lib/api'
 import { setSession } from '@/lib/session'
 
 const userSchema = z.object({
+  id: z.number(),
   firstName: z.string(),
   lastName: z.string(),
   email: z.string(),
@@ -29,7 +30,7 @@ export function loginMutation(client: QueryClient) {
       api.post('auth/login', { json: credentials }).json(loginResponseSchema),
     onSuccess: ({ accessToken, refreshToken, ...user }) => {
       client.removeQueries()
-      setSession({ accessToken, refreshToken })
+      setSession({ accessToken, refreshToken, userId: user.id })
       client.setQueryData(meQuery().queryKey, user)
     },
   })

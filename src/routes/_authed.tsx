@@ -23,17 +23,18 @@ export const Route = createFileRoute('/_authed')({
 function AuthedLayout() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { user } = Route.useRouteContext()
 
-  // Sign-out here or in another tab: beforeLoad sends the user to sign in
+  // Sign-out or another user here or in another tab: beforeLoad sends to sign in or loads the new user
   useEffect(
     () =>
       subscribeSession(() => {
         // A token refresh writes the session too
-        if (getSession()) return
+        if (getSession()?.userId === user.id) return
         queryClient.removeQueries()
         void router.invalidate()
       }),
-    [queryClient, router],
+    [queryClient, router, user.id],
   )
 
   return <Outlet />
