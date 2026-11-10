@@ -8,7 +8,6 @@ const apiUrl = new URL(import.meta.env.VITE_API_URL, window.location.origin).hre
 export async function startWorker() {
   await worker.start({
     quiet: true,
-    // Same-origin traffic is Vite and Vitest; mock the API and other origins
     onUnhandledFrame({ frame, defaults }) {
       if (!(frame instanceof HttpNetworkFrame)) return
       const { url } = frame.data.request
