@@ -16,19 +16,24 @@ updates:
       # Bump together with the Node major in .nvmrc
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
+    # Exact names: Dependabot's bun updater did not match @playwright/* against @playwright/test
     groups:
       react:
         patterns: ['react', 'react-dom', '@types/react', '@types/react-dom']
       tanstack-query:
         patterns: ['@tanstack/react-query', '@tanstack/eslint-plugin-query']
       tanstack-router:
-        patterns: ['@tanstack/react-router', '@tanstack/router-*', '@tanstack/eslint-plugin-router']
+        patterns:
+          - '@tanstack/react-router'
+          - '@tanstack/router-cli'
+          - '@tanstack/router-plugin'
+          - '@tanstack/eslint-plugin-router'
       tailwind:
-        patterns: ['tailwindcss', '@tailwindcss/*']
+        patterns: ['tailwindcss', '@tailwindcss/vite']
       vite:
-        patterns: ['vite', '@vitejs/*', '@rolldown/*']
+        patterns: ['vite', '@vitejs/plugin-react', '@rolldown/plugin-babel']
       vitest:
-        patterns: ['vitest', '@vitest/*', 'vitest-browser-react']
+        patterns: ['vitest', '@vitest/browser-playwright', 'vitest-browser-react']
       # Both must move together: each pins its own browser build
       playwright:
         patterns: ['playwright', '@playwright/test']
@@ -36,7 +41,6 @@ updates:
         patterns: ['oxlint', 'oxlint-tsgolint', 'oxfmt']
       minor-and-patch:
         update-types: [minor, patch]
-        exclude-patterns: ['playwright', '@playwright/test']
 
   - package-ecosystem: github-actions
     directory: /
