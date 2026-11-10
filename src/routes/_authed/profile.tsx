@@ -1,5 +1,7 @@
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
+import { meQuery } from '@/features/auth/queries'
 import { SignOutButton } from '@/features/auth/sign-out-button'
 
 export const Route = createFileRoute('/_authed/profile')({
@@ -8,7 +10,7 @@ export const Route = createFileRoute('/_authed/profile')({
 })
 
 function ProfilePage() {
-  const { user } = Route.useRouteContext()
+  const { data: user } = useSuspenseQuery(meQuery())
 
   return (
     <div className='mx-auto flex max-w-2xl flex-col gap-2 p-6'>
