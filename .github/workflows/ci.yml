@@ -24,7 +24,10 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
-      - run: bun install --frozen-lockfile
+      # --frozen-lockfile accepts a lockfile from another Bun or another config,
+      # such as Dependabot's, so check that this config writes the same one
+      - run: bun install
+      - run: git diff --exit-code bun.lock
       - name: Check the playwright-cli skill matches the installed CLI
         run: |
           bunx playwright-cli install --skills
