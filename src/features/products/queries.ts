@@ -44,3 +44,20 @@ export function productListQuery(params: ProductListParams) {
     queryFn: ({ signal }) => fetchProducts(params, signal),
   })
 }
+
+const productDetailSchema = z.extend(productSchema, { description: z.string() })
+
+export type ProductDetail = z.infer<typeof productDetailSchema>
+
+export function productDetailQuery(id: string) {
+  return queryOptions({
+    queryKey: ['products', 'detail', id],
+    queryFn: ({ signal }) =>
+      api
+        .get(`products/${id}`, {
+          searchParams: { select: 'title,price,thumbnail,description' },
+          signal,
+        })
+        .json(productDetailSchema),
+  })
+}

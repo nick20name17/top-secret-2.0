@@ -128,3 +128,17 @@ test('Try again on the error page loads the products once the API is back', asyn
   await expect.element(page.getByText('Product at 0')).toBeVisible()
   vi.mocked(console.error).mockClear()
 })
+
+test('choosing a product opens its page', async () => {
+  mockProducts()
+  worker.use(
+    http.get(`${apiUrl}/products/1`, () =>
+      HttpResponse.json({ ...product('Lamp'), description: 'A desk lamp.' }),
+    ),
+  )
+  await renderRoute('/products')
+
+  await userEvent.click(page.getByRole('link', { name: /Product at 0/ }))
+
+  await expect.element(page.getByRole('heading', { name: 'Lamp' })).toBeVisible()
+})
