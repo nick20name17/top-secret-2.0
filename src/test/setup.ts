@@ -1,3 +1,5 @@
+// Real styles: without them shadcn controls have no size and cannot be clicked
+import '@/index.css'
 import { afterEach, beforeAll, expect, vi } from 'vitest'
 
 import { startWorker, worker } from '@/test/msw'

@@ -42,6 +42,36 @@ const testRules: Rules = {
   ],
 }
 
+// Native elements that shadcn components replace
+const forbidElements = [
+  'button',
+  'input',
+  'select',
+  'option',
+  'optgroup',
+  'textarea',
+  'label',
+  'fieldset',
+  'legend',
+  'table',
+  'caption',
+  'thead',
+  'tbody',
+  'tfoot',
+  'tr',
+  'th',
+  'td',
+  'dialog',
+  'details',
+  'summary',
+  'hr',
+  'progress',
+  'kbd',
+].map((element) => ({
+  element,
+  message: `Use the shadcn component from @/components/ui. Find a missing one with bunx shadcn search @shadcn -q ${element}, add it with bun run ui:add <name>.`,
+}))
+
 const compilerMessage =
   'React Compiler memoizes automatically: write plain values, functions and components.'
 
@@ -84,16 +114,28 @@ const basePatterns: ImportPattern[] = [
       "Vitest browser mode has this built in: render from 'vitest-browser-react'; page and userEvent from 'vitest/browser'; matchers on expect.element.",
   },
 ]
+const sharedPattern: ImportPattern = {
+  group: ['@/features/**', ...appShell],
+  message:
+    'Shared code must not know about features or the app shell. Move the code into the feature.',
+}
 const testPrivate: ImportPattern = {
   group: featurePrivate.group,
   message: 'Test a feature through its root files, not its private subfolders.',
 }
 
 function restrictedImports(...patterns: ImportPattern[]): Rules['no-restricted-imports'] {
+  return importRule(restrictedPaths, patterns)
+}
+
+function importRule(
+  paths: typeof restrictedPaths,
+  patterns: ImportPattern[],
+): Rules['no-restricted-imports'] {
   return [
     'error',
     {
-      paths: restrictedPaths,
+      paths,
       patterns: [
         ...basePatterns,
         {
@@ -260,6 +302,7 @@ export default defineConfig({
     'react/no-unknown-property': 'error',
     'react/only-export-components': ['error', { allowConstantExport: true }],
     'react/self-closing-comp': 'error',
+    'react/forbid-elements': ['error', { forbid: forbidElements }],
     'react/jsx-no-constructed-context-values': 'off',
     'react/unsupported-syntax': 'error',
     'unicorn/error-message': 'error',
@@ -291,16 +334,7 @@ export default defineConfig({
       files: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
       rules: { 'no-restricted-imports': restrictedImports(testPrivate) },
     },
-    ...boundaries(
-      ['src/components', 'src/hooks', 'src/lib'],
-      [
-        {
-          group: ['@/features/**', ...appShell],
-          message:
-            'Shared code must not know about features or the app shell. Move the code into the feature.',
-        },
-      ],
-    ),
+    ...boundaries(['src/components', 'src/hooks', 'src/lib'], [sharedPattern]),
     ...featureOverrides,
     {
       files: ['*.config.ts', 'e2e/**'],
@@ -312,6 +346,10 @@ export default defineConfig({
     {
       files: ['src/components/ui/**'],
       rules: {
+        // shadcn generates import * as React and memo hooks
+        'no-restricted-imports': importRule([], [sharedPattern]),
+        // shadcn components are built on the native elements
+        'react/forbid-elements': 'off',
         'shadcn/no-restyle': 'off',
         'shadcn/no-arbitrary-values': 'off',
         'react/only-export-components': 'off',

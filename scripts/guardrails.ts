@@ -130,6 +130,12 @@ const cases: Case[] = [
     rule: 'shadcn(no-raw-colors)',
   },
   {
+    name: 'a native control instead of a shadcn component',
+    file: `${feature}/native-select.tsx`,
+    code: "export function Picker() {\n  return <select aria-label='Size' />\n}",
+    rule: 'react(forbid-elements)',
+  },
+  {
     name: 'a snapshot assertion',
     file: `${feature}/snapshot.test.ts`,
     code: "import { expect, test } from 'vitest'\n\ntest('t', () => {\n  expect(1).toMatchSnapshot()\n})",
