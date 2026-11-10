@@ -9,6 +9,7 @@ import { createAppRouter } from '@/router'
 export function renderRoute(url: string) {
   const queryClient = createQueryClient()
   const router = createAppRouter(queryClient, createMemoryHistory({ initialEntries: [url] }))
+  router.update({ ...router.options, defaultPreload: false })
   return render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>

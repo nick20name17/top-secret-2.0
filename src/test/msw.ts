@@ -1,7 +1,11 @@
+import { HttpResponse, http } from 'msw'
 import { setupWorker } from 'msw/browser'
 import { HttpNetworkFrame } from 'msw/experimental'
 
-export const worker = setupWorker()
+// Images in the fixtures point to the real CDN
+export const worker = setupWorker(
+  http.get('https://cdn.dummyjson.com/*', () => new HttpResponse(null, { status: 404 })),
+)
 
 const apiUrl = new URL(import.meta.env.VITE_API_URL, window.location.origin).href
 

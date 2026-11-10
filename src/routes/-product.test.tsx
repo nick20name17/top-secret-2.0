@@ -2,21 +2,12 @@ import { HttpResponse, http } from 'msw'
 import { expect, test } from 'vitest'
 import { page } from 'vitest/browser'
 
+// Real response: GET https://dummyjson.com/products/1?select=title,price,thumbnail,description
+import mascara from '@/test/fixtures/products-1.json'
 import { worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
 
 const apiUrl = import.meta.env.VITE_API_URL
-
-// From GET https://dummyjson.com/products/1?select=title,price,thumbnail,description
-const mascara = {
-  id: 1,
-  title: 'Essence Mascara Lash Princess',
-  price: 9.99,
-  // The real CDN URL would load an image the worker does not handle
-  thumbnail: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
-  description:
-    'The Essence Mascara Lash Princess is a popular mascara known for its volumizing and lengthening effects. Achieve dramatic lashes with this long-lasting and cruelty-free formula.',
-}
 
 test('a product page shows the product', async () => {
   worker.use(http.get(`${apiUrl}/products/1`, () => HttpResponse.json(mascara)))

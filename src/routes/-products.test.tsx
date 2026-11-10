@@ -2,25 +2,29 @@ import { HttpResponse, http } from 'msw'
 import { expect, test, vi } from 'vitest'
 import { page, userEvent } from 'vitest/browser'
 
+// Real responses: GET https://dummyjson.com/products?limit=12&skip=0&select=title,price,thumbnail
+// and GET https://dummyjson.com/products/1?select=title,price,thumbnail,description
+import mascara from '@/test/fixtures/products-1.json'
+import firstPage from '@/test/fixtures/products.json'
 import { worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
 
 const apiUrl = import.meta.env.VITE_API_URL
 
-// Titles echo the request
-function product(title: string) {
-  return { id: 1, title, price: 9.99, thumbnail: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=' }
+// Titles echo the request; 30 products make 3 pages
+function productPage(title: string) {
+  return { ...firstPage, products: [{ ...firstPage.products[0], title }], total: 30 }
 }
 
 function mockProducts() {
   worker.use(
     http.get(`${apiUrl}/products`, ({ request }) => {
       const skip = new URL(request.url).searchParams.get('skip')
-      return HttpResponse.json({ products: [product(`Product at ${skip}`)], total: 30 })
+      return HttpResponse.json(productPage(`Product at ${skip}`))
     }),
     http.get(`${apiUrl}/products/search`, ({ request }) => {
       const q = new URL(request.url).searchParams.get('q')
-      return HttpResponse.json({ products: [product(`Result for ${q}`)], total: 30 })
+      return HttpResponse.json(productPage(`Result for ${q}`))
     }),
   )
 }
@@ -131,14 +135,12 @@ test('Try again on the error page loads the products once the API is back', asyn
 
 test('choosing a product opens its page', async () => {
   mockProducts()
-  worker.use(
-    http.get(`${apiUrl}/products/1`, () =>
-      HttpResponse.json({ ...product('Lamp'), description: 'A desk lamp.' }),
-    ),
-  )
+  worker.use(http.get(`${apiUrl}/products/1`, () => HttpResponse.json(mascara)))
   await renderRoute('/products')
 
   await userEvent.click(page.getByRole('link', { name: /Product at 0/ }))
 
-  await expect.element(page.getByRole('heading', { name: 'Lamp' })).toBeVisible()
+  await expect
+    .element(page.getByRole('heading', { name: 'Essence Mascara Lash Princess' }))
+    .toBeVisible()
 })

@@ -4,12 +4,15 @@ import { page, userEvent } from 'vitest/browser'
 
 import { APP_NAME } from '@/lib/app-name'
 import { SESSION_KEY, setSession } from '@/lib/session'
+// Real responses: GET https://dummyjson.com/users/1 (auth/me returns the same user),
+// POST auth/login from https://dummyjson.com/docs/auth
+import login from '@/test/fixtures/auth-login.json'
+import user from '@/test/fixtures/users-1.json'
+import otherUser from '@/test/fixtures/users-2.json'
 import { worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
 
 const apiUrl = import.meta.env.VITE_API_URL
-
-const user = { id: 1, firstName: 'Emily', lastName: 'Johnson', email: 'emily@example.com' }
 
 function signIn() {
   setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
@@ -27,7 +30,7 @@ test('signing in opens the page the user first asked for', async () => {
   worker.use(
     http.post(`${apiUrl}/auth/login`, async ({ request }) => {
       credentials = await request.json()
-      return HttpResponse.json({ ...user, accessToken: 'access-1', refreshToken: 'refresh-1' })
+      return HttpResponse.json(login)
     }),
   )
   await renderRoute('/profile')
@@ -105,12 +108,7 @@ test('signing out in another tab opens the sign-in page', async () => {
 test('signing in as another user in another tab shows that user', async () => {
   const usersByToken: Record<string, typeof user> = {
     'Bearer access-1': user,
-    'Bearer access-2': {
-      id: 2,
-      firstName: 'Michael',
-      lastName: 'Williams',
-      email: 'michael@example.com',
-    },
+    'Bearer access-2': otherUser,
   }
   setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
   worker.use(
@@ -150,11 +148,7 @@ test('an API error while signed in shows the error page and keeps the session', 
 })
 
 test('signing in without a redirect opens the home page', async () => {
-  worker.use(
-    http.post(`${apiUrl}/auth/login`, () =>
-      HttpResponse.json({ ...user, accessToken: 'access-1', refreshToken: 'refresh-1' }),
-    ),
-  )
+  worker.use(http.post(`${apiUrl}/auth/login`, () => HttpResponse.json(login)))
   await renderRoute('/login')
 
   await userEvent.fill(page.getByLabelText('Username'), 'emilys')
