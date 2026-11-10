@@ -10,9 +10,13 @@ import { PAGE_SIZE, productListQuery } from '@/features/products/queries'
 const defaultSearch = { q: '', page: 1 }
 
 // URL values are text, so numbers are coerced; z.catch makes a bad value the default
+// and z.prefault lets a link leave the param out
 const searchSchema = z.object({
-  q: z.catch(z.string(), defaultSearch.q),
-  page: z.catch(z.coerce.number<number>().check(z.int(), z.positive()), defaultSearch.page),
+  q: z.prefault(z.catch(z.string(), defaultSearch.q), defaultSearch.q),
+  page: z.prefault(
+    z.catch(z.coerce.number<number>().check(z.int(), z.positive()), defaultSearch.page),
+    defaultSearch.page,
+  ),
 })
 
 export const Route = createFileRoute('/products')({
