@@ -29,12 +29,14 @@ updates:
         patterns: ['vite', '@vitejs/*', '@rolldown/*']
       vitest:
         patterns: ['vitest', '@vitest/*', 'vitest-browser-react']
+      # Both must move together: each pins its own browser build
       playwright:
-        patterns: ['playwright', '@playwright/*']
+        patterns: ['playwright', '@playwright/test']
       oxc:
         patterns: ['oxlint', 'oxlint-tsgolint', 'oxfmt']
       minor-and-patch:
         update-types: [minor, patch]
+        exclude-patterns: ['playwright', '@playwright/test']
 
   - package-ecosystem: github-actions
     directory: /
