@@ -1,4 +1,17 @@
 {
+  "permissions": {
+    "deny": ["Edit(/src/components/ui/**)", "Edit(/src/routeTree.gen.ts)", "Edit(/bun.lock)"],
+    "ask": [
+      "Edit(/oxlint.config.ts)",
+      "Edit(/oxfmt.config.ts)",
+      "Edit(/doctor.config.ts)",
+      "Edit(/vite.config.ts)",
+      "Edit(/playwright.config.ts)",
+      "Edit(/tsconfig*.json)",
+      "Edit(/scripts/guardrails.ts)",
+      "Edit(/.claude/**)"
+    ]
+  },
   "hooks": {
     "UserPromptSubmit": [
       {

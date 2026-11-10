@@ -173,6 +173,24 @@ const cases: Case[] = [
     help: 'Test a feature through its root files',
   },
   {
+    name: 'a skipped test',
+    file: `${feature}/skip.test.ts`,
+    code: "import { test } from 'vitest'\n\ntest.skip('t', () => {})",
+    rule: 'vitest(no-disabled-tests)',
+  },
+  {
+    name: 'a focused test',
+    file: `${feature}/only.test.ts`,
+    code: "import { test } from 'vitest'\n\ntest.only('t', () => {})",
+    rule: 'vitest(no-focused-tests)',
+  },
+  {
+    name: 'a skipped e2e test',
+    file: `e2e/${prefix}-skip.spec.ts`,
+    code: "import { test } from '@playwright/test'\n\ntest.skip('t', async () => {})",
+    rule: 'playwright(no-skipped-test)',
+  },
+  {
     name: 'a fixed wait in an e2e test',
     file: `e2e/${prefix}.spec.ts`,
     code: "import { test } from '@playwright/test'\n\ntest('t', async ({ page }) => {\n  await page.waitForTimeout(100)\n})",
