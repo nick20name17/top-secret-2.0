@@ -6,7 +6,7 @@
 - Put each feature in `src/features/<name>/`. Its root files are its interface; its subfolders are private.
 - Keep modules deep: a small interface over a lot of behaviour. Add a root file only when a caller needs it, and an abstraction only when a second implementation exists.
 - Keep routes thin: the loader fills the Query cache and the component composes features. Put UI that only one route uses in a `-`-prefixed folder next to it, such as `-components/`; the router ignores it.
-- Move code into `src/components/`, `src/hooks/` or `src/lib/` only when a second feature needs it.
+- Keep code where it is used until a second feature or route needs it; then move it into `src/components/`, `src/hooks/` or `src/lib/`. A second page with the same search form or pager is that moment.
 - Define a feature's server data in its `queries.ts` as `queryOptions()` factories, with each key next to its `queryFn`. Order key parts from generic to specific: `['todos', 'detail', id]`.
 
 ## Tests
@@ -19,7 +19,7 @@
 - Browser storage and cross-tab events are a system boundary too: write to them directly only to simulate another tab or corrupted data; otherwise go through the module's exports.
 - Copy mock response bodies from a real API response or its docs. A body written from the zod schema can never disagree with the code.
 - Keep code testable: pass dependencies in, return results instead of mutating arguments, and give each API endpoint its own function so a mock returns one shape.
-- Watch every new test go red once before it goes green. Red is the assertion failing on the missing behaviour; an import, type or setup error is not red yet. Add one test and the code for it at a time.
+- Watch every new test go red before the code for it exists. Red is the assertion failing on the missing behaviour; an import, type or setup error is not red yet. If a new test is green from the start, say what already provides the behaviour.
 - When a test fails, fix the code. Change the test only when the spec changed, and say so. Never skip a test, loosen an assertion or add a retry to make it pass.
 - For a bug, first write a test that goes red on the exact symptom the user reported, cut it down to the smallest failing case, then fix. If no seam reproduces the bug as it really happens, say so instead of adding a shallow test.
 - Make tests deterministic: fake time, fixed data, and wait on a condition (`expect.element`, `expect.poll`, web-first assertions).
