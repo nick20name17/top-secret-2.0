@@ -41,6 +41,7 @@
         "babel-plugin-react-compiler": "1.0.0",
         "eslint-import-resolver-typescript": "4.4.5",
         "eslint-plugin-boundaries": "7.4.2",
+        "eslint-plugin-no-relative-import-paths": "1.7.3",
         "eslint-plugin-playwright": "2.12.2",
         "msw": "3.0.4",
         "oxfmt": "0.77.0",
@@ -814,6 +815,8 @@
     "eslint-module-utils": ["eslint-module-utils@2.14.0", "", { "dependencies": { "debug": "^3.2.7" }, "peerDependencies": { "eslint": "*" }, "optionalPeers": ["eslint"] }, "sha512-W2WCRZ9Dqntd+2u8jJcVMV2PKulc6RdLgUUoh/yQr3uB6lo/ZOeGx11sv60/8S4QFFKNslAlWhr9u0Ef7ZW6Ig=="],
 
     "eslint-plugin-boundaries": ["eslint-plugin-boundaries@7.4.2", "", { "dependencies": { "@boundaries/config": "1.0.1", "@boundaries/elements": "3.3.2", "@boundaries/policies": "1.0.1", "chalk": "4.1.2", "eslint-import-resolver-node": "0.3.9", "eslint-module-utils": "2.14.0" }, "peerDependencies": { "eslint": ">=6.0.0" } }, "sha512-gf0Z+FfkccqyVAmwjWdqWfpvy9y4hrUiXcF4DrC5S6fSjUhpyO/ncnvVbxyeNy0DlxNKaEnrld2+hrNwSSgXMw=="],
+
+    "eslint-plugin-no-relative-import-paths": ["eslint-plugin-no-relative-import-paths@1.7.3", "", {}, "sha512-vEpNX0fvhoHdBu8eI05+XXYswnGHW2HJYmnJJeR8zOwgo59GgWv98z22XyZvMEHHcjSX4yGX2Ni/GyxGpBjfgw=="],
 
     "eslint-plugin-playwright": ["eslint-plugin-playwright@2.12.2", "", { "dependencies": { "globals": "^17.3.0" }, "peerDependencies": { "eslint": ">=8.40.0" } }, "sha512-sYRCyAEACD3URVoFTfldZcvZNdlJ1r5414gilOTsDCu26PY7l4dUl/3o9ohIEltZgaDS1VXD1mG5xU1KlIGJSw=="],
 
