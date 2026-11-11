@@ -40,7 +40,6 @@ const testRules: Rules = {
   ],
 }
 
-// Native elements that shadcn components replace
 const forbidElements = [
   'button',
   'input',
@@ -92,7 +91,6 @@ const restrictedPaths = [
   },
 ]
 
-// Bans for every file
 function restrictedImports(paths = restrictedPaths): Rules['no-restricted-imports'] {
   return [
     'error',
@@ -119,7 +117,6 @@ const boundaries: Rules['boundaries/dependencies'] = [
   'error',
   {
     default: 'allow',
-    // Also check imports inside a feature
     checkInternals: true,
     policies: [
       {
