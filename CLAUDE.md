@@ -1,4 +1,5 @@
 - Add shadcn components only with `bun run ui:add <name>`.
+- When the request needs something the API doesn't have (a field, a filter, an endpoint), ask the user how to get it before writing code.
 
 ## Architecture
 
