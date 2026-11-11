@@ -11,13 +11,9 @@ import user from '@/test/fixtures/users-1.json'
 import otherUser from '@/test/fixtures/users-2.json'
 import { worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
+import { signIn } from '@/test/sign-in'
 
 const apiUrl = import.meta.env.VITE_API_URL
-
-function signIn() {
-  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
-  worker.use(http.get(`${apiUrl}/auth/me`, () => HttpResponse.json(user)))
-}
 
 test('opening the profile signed out shows the sign-in form', async () => {
   await renderRoute('/profile')

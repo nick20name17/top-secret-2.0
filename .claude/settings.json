@@ -1,11 +1,6 @@
 {
   "permissions": {
-    "deny": [
-      "Edit(/src/components/ui/**)",
-      "Edit(/src/routeTree.gen.ts)",
-      "Edit(/src/lib/api.gen.ts)",
-      "Edit(/bun.lock)"
-    ],
+    "deny": ["Edit(/src/routeTree.gen.ts)", "Edit(/src/lib/api.gen.ts)", "Edit(/bun.lock)"],
     "ask": [
       "Edit(/oxlint.config.ts)",
       "Edit(/oxfmt.config.ts)",
