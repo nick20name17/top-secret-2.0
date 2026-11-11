@@ -2,22 +2,29 @@ import { queryOptions } from '@tanstack/react-query'
 import { z } from 'zod/mini'
 
 import { api } from '@/lib/api'
+import { apiSchema } from '@/lib/api-schema'
 
 export const PAGE_SIZE = 12
 
-const productSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  price: z.number(),
-  thumbnail: z.string(),
-})
+const productSchema = apiSchema(
+  'Product',
+  z.object({
+    id: z.number(),
+    title: z.string(),
+    price: z.number(),
+    thumbnail: z.string(),
+  }),
+)
 
 export type Product = z.infer<typeof productSchema>
 
-const productPageSchema = z.object({
-  products: z.array(productSchema),
-  total: z.number(),
-})
+const productPageSchema = apiSchema(
+  'ProductList',
+  z.object({
+    products: z.array(productSchema),
+    total: z.number(),
+  }),
+)
 
 interface ProductListParams {
   q: string
@@ -45,7 +52,10 @@ export function productListQuery(params: ProductListParams) {
   })
 }
 
-const productDetailSchema = z.extend(productSchema, { description: z.string() })
+const productDetailSchema = apiSchema(
+  'Product',
+  z.extend(productSchema, { description: z.string() }),
+)
 
 export type ProductDetail = z.infer<typeof productDetailSchema>
 

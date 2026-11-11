@@ -9,5 +9,5 @@ export default defineConfig({
     stylesheet: 'src/index.css',
     functions: ['cn', 'cva'],
   },
-  ignorePatterns: ['src/routeTree.gen.ts', '.claude/skills/**'],
+  ignorePatterns: ['src/routeTree.gen.ts', 'src/lib/api.gen.ts', '.claude/skills/**'],
 })

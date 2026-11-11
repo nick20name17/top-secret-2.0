@@ -19,6 +19,6 @@ export default defineConfig({
     'react-doctor/no-collapse-request-error-to-empty-state': 'error',
   },
   ignore: {
-    files: ['src/routeTree.gen.ts'],
+    files: ['src/routeTree.gen.ts', 'src/lib/api.gen.ts'],
   },
 })

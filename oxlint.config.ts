@@ -311,7 +311,7 @@ export default defineConfig({
     'shadcn/no-unknown-classes': 'error',
     'shadcn/require-static-classes': 'error',
   },
-  ignorePatterns: ['src/routeTree.gen.ts', '.claude/skills/**'],
+  ignorePatterns: ['src/routeTree.gen.ts', 'src/lib/api.gen.ts', '.claude/skills/**'],
   overrides: [
     {
       files: ['*.config.ts', 'e2e/**'],

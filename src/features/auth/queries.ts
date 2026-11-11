@@ -2,14 +2,18 @@ import { type QueryClient, mutationOptions, queryOptions } from '@tanstack/react
 import { z } from 'zod/mini'
 
 import { api } from '@/lib/api'
+import { apiSchema } from '@/lib/api-schema'
 import { setSession } from '@/lib/session'
 
-const userSchema = z.object({
-  id: z.number(),
-  firstName: z.string(),
-  lastName: z.string(),
-  email: z.string(),
-})
+const userSchema = apiSchema(
+  'AuthUser',
+  z.object({
+    id: z.number(),
+    firstName: z.string(),
+    lastName: z.string(),
+    email: z.string(),
+  }),
+)
 
 export function meQuery() {
   return queryOptions({
@@ -19,10 +23,13 @@ export function meQuery() {
   })
 }
 
-const loginResponseSchema = z.extend(userSchema, {
-  accessToken: z.string(),
-  refreshToken: z.string(),
-})
+const loginResponseSchema = apiSchema(
+  'LoginResponse',
+  z.extend(userSchema, {
+    accessToken: z.string(),
+    refreshToken: z.string(),
+  }),
+)
 
 export function loginMutation(client: QueryClient) {
   return mutationOptions({

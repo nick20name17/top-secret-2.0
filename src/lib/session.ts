@@ -1,8 +1,13 @@
 import { z } from 'zod/mini'
 
+import { apiSchema } from '@/lib/api-schema'
+
 export const SESSION_KEY = 'session'
 
-export const tokensSchema = z.object({ accessToken: z.string(), refreshToken: z.string() })
+export const tokensSchema = apiSchema(
+  'Tokens',
+  z.object({ accessToken: z.string(), refreshToken: z.string() }),
+)
 
 // userId tells a token refresh from another user signing in
 export const sessionSchema = z.extend(tokensSchema, { userId: z.number() })
