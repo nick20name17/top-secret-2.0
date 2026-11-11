@@ -25,7 +25,6 @@ function AuthedLayout() {
   const queryClient = useQueryClient()
   const { data: user } = useSuspenseQuery(meQuery())
 
-  // The session changed, here or in another tab
   useEffect(
     () =>
       subscribeSession(() => {

@@ -10,7 +10,6 @@ import { PAGE_SIZE, productListQuery } from '@/features/products/queries'
 
 const defaultSearch = { q: '', page: 1 }
 
-// z.catch makes a bad URL value the default; z.prefault lets a link omit the param
 const searchSchema = z.object({
   q: z.prefault(z.catch(z.string(), defaultSearch.q), defaultSearch.q),
   page: z.prefault(
