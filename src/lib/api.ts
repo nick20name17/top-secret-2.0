@@ -40,7 +40,7 @@ export const api = base.extend({
     beforeRetry: [setToken],
     afterResponse: [
       async ({ request, response, options }) => {
-        if (response.status !== 401 || !getSession()) return undefined
+        if (response.status !== 401) return undefined
         if (options.context.tokenRetried) return clearSession()
 
         options.context.tokenRetried = true
