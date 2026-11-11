@@ -7,15 +7,26 @@ import { RoutePending } from '@/components/route-pending'
 import { queryClient } from '@/lib/query-client'
 import { routeTree } from '@/routeTree.gen'
 
+type SearchValue = string | number | boolean
+
 // Keep values as text: the default parser and parseSearchWith make ?q=2024 a number (TanStack/router#6044)
-function parseSearch(searchStr: string) {
-  return Object.fromEntries(new URLSearchParams(searchStr))
+// A repeated key is a list: ?tag=a&tag=b gives ['a', 'b'], but ?tag=a gives 'a', so a list schema must accept both
+export function parseSearch(searchStr: string) {
+  const search = new Map<string, string | string[]>()
+  for (const [key, value] of new URLSearchParams(searchStr)) {
+    const previous = search.get(key)
+    if (previous === undefined) search.set(key, value)
+    else if (Array.isArray(previous)) previous.push(value)
+    else search.set(key, [previous, value])
+  }
+  return Object.fromEntries(search)
 }
 
-function stringifySearch(search: Record<string, string | number | boolean | undefined>) {
+export function stringifySearch(search: Record<string, SearchValue | SearchValue[] | undefined>) {
   const params = new URLSearchParams()
   for (const [key, value] of Object.entries(search)) {
-    if (value !== undefined) params.set(key, String(value))
+    if (Array.isArray(value)) for (const item of value) params.append(key, String(item))
+    else if (value !== undefined) params.set(key, String(value))
   }
   const searchStr = params.toString()
   return searchStr ? `?${searchStr}` : ''
