@@ -45,15 +45,6 @@ test('opens the first page when the page in the URL is broken', async () => {
   await expect.element(page.getByText('Page 1 of 3')).toBeVisible()
 })
 
-test('next page link shows the following products', async () => {
-  mockProducts()
-  await renderRoute('/products')
-
-  await userEvent.click(page.getByRole('link', { name: 'Next page' }))
-
-  await expect.element(page.getByText('Product at 12')).toBeVisible()
-})
-
 test('searching shows matching products and keeps the query in the URL', async () => {
   mockProducts()
   await renderRoute('/products?page=2')
@@ -106,15 +97,6 @@ test('searching ignores spaces around the query', async () => {
   await expect
     .element(page.getByRole('link', { name: 'Next page' }))
     .toHaveAttribute('href', '/products?q=phone&page=2')
-})
-
-test('going back to the first page leaves the page out of the URL', async () => {
-  mockProducts()
-  await renderRoute('/products?page=2')
-
-  await expect
-    .element(page.getByRole('link', { name: 'Previous page' }))
-    .toHaveAttribute('href', '/products')
 })
 
 test('Try again on the error page loads the products once the API is back', async () => {

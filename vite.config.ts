@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => ({
     setupFiles: ['src/test/setup.ts'],
     browser: {
       enabled: true,
-      provider: playwright(),
+      provider: playwright({ contextOptions: { colorScheme: 'light' } }),
       headless: true,
       instances: [{ browser: 'chromium' }],
     },
