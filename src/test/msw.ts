@@ -1,7 +1,14 @@
+import { HttpResponse, http } from 'msw'
 import { setupWorker } from 'msw/browser'
 import { HttpNetworkFrame } from 'msw/experimental'
 
-export const worker = setupWorker()
+// Images in fixtures point to real hosts; the test page itself is served over http
+const remoteImages = http.get(
+  /^https:.*\.(avif|gif|jpe?g|png|svg|webp)$/,
+  () => new HttpResponse(null, { status: 404 }),
+)
+
+export const worker = setupWorker(remoteImages)
 
 const apiUrl = new URL(import.meta.env.VITE_API_URL, window.location.origin).href
 

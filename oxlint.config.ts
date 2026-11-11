@@ -92,7 +92,7 @@ const restrictedPaths = [
   },
 ]
 
-// Bans that hold in every file. Where a file may import from is the boundaries plugin's job.
+// Bans for every file
 function restrictedImports(paths = restrictedPaths): Rules['no-restricted-imports'] {
   return [
     'error',
@@ -114,12 +114,12 @@ function restrictedImports(paths = restrictedPaths): Rules['no-restricted-import
   ]
 }
 
-// Where a file in src/ may import from (CLAUDE.md, Architecture). The last policy that matches wins.
+// Where files in src/ may import from; the last matching policy wins
 const boundaries: Rules['boundaries/dependencies'] = [
   'error',
   {
     default: 'allow',
-    // A feature's own files are one element: check the imports between them too
+    // Also check imports inside a feature
     checkInternals: true,
     policies: [
       {
@@ -306,7 +306,7 @@ export default defineConfig({
 
     'shadcn/no-restyle': ['error', { allow: ['layout'] }],
     'shadcn/no-raw-colors': 'error',
-    'shadcn/no-arbitrary-values': 'error',
+    'shadcn/no-arbitrary-values': ['error', { allow: ['layout'] }],
     'shadcn/no-inline-styles': 'error',
     'shadcn/no-unknown-classes': 'error',
     'shadcn/require-static-classes': 'error',

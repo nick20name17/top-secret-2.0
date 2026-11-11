@@ -12,7 +12,7 @@ export const Route = createFileRoute('/_authed')({
     try {
       await context.queryClient.query(meQuery())
     } catch (error) {
-      // api clears a session it cannot refresh: send the user to sign in, not to an error page
+      // api cleared a session it could not refresh
       if (!getSession()) throw toLogin
       throw error
     }
@@ -25,14 +25,14 @@ function AuthedLayout() {
   const queryClient = useQueryClient()
   const { data: user } = useSuspenseQuery(meQuery())
 
-  // Sign-out or another user here or in another tab: beforeLoad sends to sign in or loads the new user
+  // The session changed, here or in another tab
   useEffect(
     () =>
       subscribeSession(() => {
         // A token refresh writes the session too
         const session = getSession()
         if (session?.userId === user.id) return
-        // Pages read the user from the cache: reset refetches it as the new user, remove would leave them on the old one
+        // reset refetches the new user; remove would leave pages on the old one
         if (session) void queryClient.resetQueries()
         else queryClient.removeQueries()
         void router.invalidate()

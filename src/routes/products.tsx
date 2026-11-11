@@ -1,16 +1,16 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, stripSearchParams } from '@tanstack/react-router'
+import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import { z } from 'zod/mini'
 
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Pager } from '@/components/pager'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ProductList } from '@/features/products/product-list'
 import { PAGE_SIZE, productListQuery } from '@/features/products/queries'
 
 const defaultSearch = { q: '', page: 1 }
 
-// URL values are text, so numbers are coerced; z.catch makes a bad value the default
-// and z.prefault lets a link leave the param out
+// z.catch makes a bad URL value the default; z.prefault lets a link omit the param
 const searchSchema = z.object({
   q: z.prefault(z.catch(z.string(), defaultSearch.q), defaultSearch.q),
   page: z.prefault(
@@ -58,27 +58,7 @@ function ProductsPage() {
         </form>
       </search>
       <ProductList products={data.products} />
-      <nav aria-label='Pagination' className='flex items-center justify-between gap-2 text-sm'>
-        <Link
-          from={Route.fullPath}
-          search={(prev) => ({ ...prev, page: prev.page - 1 })}
-          disabled={search.page <= 1}
-          className={buttonVariants({ variant: 'outline' })}
-        >
-          Previous page
-        </Link>
-        <span className='tabular-nums'>
-          Page {search.page} of {pageCount}
-        </span>
-        <Link
-          from={Route.fullPath}
-          search={(prev) => ({ ...prev, page: prev.page + 1 })}
-          disabled={search.page >= pageCount}
-          className={buttonVariants({ variant: 'outline' })}
-        >
-          Next page
-        </Link>
-      </nav>
+      <Pager page={search.page} pageCount={pageCount} />
     </div>
   )
 }
