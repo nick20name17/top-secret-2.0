@@ -19,8 +19,6 @@ export default defineConfig({
     'react-doctor/no-collapse-request-error-to-empty-state': 'error',
   },
   ignore: {
-    // oxlint.config.ts calls readdirSync: react-doctor then treats every module as dynamically
-    // loaded and silently skips unused-export and unused-type for the whole project
-    files: ['src/routeTree.gen.ts', 'oxlint.config.ts'],
+    files: ['src/routeTree.gen.ts'],
   },
 })

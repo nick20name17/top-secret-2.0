@@ -1,5 +1,3 @@
-import { existsSync, readdirSync } from 'node:fs'
-
 import query from '@tanstack/eslint-plugin-query'
 import router from '@tanstack/eslint-plugin-router'
 import playwright from 'eslint-plugin-playwright'
@@ -94,102 +92,72 @@ const restrictedPaths = [
   },
 ]
 
-interface ImportPattern {
-  group: string[]
-  message: string
-}
-
-const zodPattern: ImportPattern = { group: ['zod', 'zod/**', '!zod/mini'], message: zodMessage }
-
-const privateMessage =
-  "A feature's root files are its interface; its subfolders are private. Import a root file, or add one."
-const featurePrivate: ImportPattern = { group: ['@/features/*/*/**'], message: privateMessage }
-const appShell = ['@/routes/**', '@/router', '@/routeTree.gen', '@/main']
-
-const basePatterns: ImportPattern[] = [
-  zodPattern,
-  {
-    group: ['@testing-library/**'],
-    message:
-      "Vitest browser mode has this built in: render from 'vitest-browser-react'; page and userEvent from 'vitest/browser'; matchers on expect.element.",
-  },
-]
-const sharedPattern: ImportPattern = {
-  group: ['@/features/**', ...appShell],
-  message:
-    'Shared code must not know about features or the app shell. Move the code into the feature.',
-}
-const testPrivate: ImportPattern = {
-  group: featurePrivate.group,
-  message: 'Test a feature through its root files, not its private subfolders.',
-}
-
-function restrictedImports(...patterns: ImportPattern[]): Rules['no-restricted-imports'] {
-  return importRule(restrictedPaths, patterns)
-}
-
-function importRule(
-  paths: typeof restrictedPaths,
-  patterns: ImportPattern[],
-): Rules['no-restricted-imports'] {
+// Bans that hold in every file. Where a file may import from is the boundaries plugin's job.
+function restrictedImports(paths = restrictedPaths): Rules['no-restricted-imports'] {
   return [
     'error',
     {
       paths,
       patterns: [
-        ...basePatterns,
         {
-          group: ['./**', '../**'],
-          message: "Import with '@/', so the module boundary rules can see the path.",
+          regex: '^\\.\\.?/',
+          message: "Import with '@/', so the module boundary rule can see the path.",
         },
-        ...patterns,
+        { group: ['zod', 'zod/**', '!zod/mini'], message: zodMessage },
+        {
+          group: ['@testing-library/**'],
+          message:
+            "Vitest browser mode has this built in: render from 'vitest-browser-react'; page and userEvent from 'vitest/browser'; matchers on expect.element.",
+        },
       ],
     },
   ]
 }
 
-// An override replaces the whole rule, so tests repeat their folder's boundaries
-function boundaries(
-  dirs: string[],
-  patterns: ImportPattern[],
-  testPatterns = [...patterns, testPrivate],
-) {
-  return [
-    {
-      files: dirs.map((dir) => `${dir}/**`),
-      rules: { 'no-restricted-imports': restrictedImports(...patterns) },
-    },
-    {
-      files: dirs.map((dir) => `${dir}/**/*.test.{ts,tsx}`),
-      rules: { 'no-restricted-imports': restrictedImports(...testPatterns) },
-    },
-  ]
-}
-
-const featuresDir = new URL('src/features/', import.meta.url)
-const features = existsSync(featuresDir)
-  ? readdirSync(featuresDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-  : []
-
-const featureOverrides = features.flatMap((feature) => {
-  const shellPattern: ImportPattern = {
-    group: appShell,
-    message:
-      'Routes compose features, never the other way round. Pass what the feature needs as props or arguments.',
-  }
-  const ownPrivate: ImportPattern = {
-    group: [...featurePrivate.group, `!@/features/${feature}/**`],
-    message: privateMessage,
-  }
-  // oxlint merges all groups, so this ! would also lift testPrivate
-  return boundaries(
-    [`src/features/${feature}`],
-    [ownPrivate, shellPattern],
-    [testPrivate, shellPattern],
-  )
-})
+// Where a file in src/ may import from (CLAUDE.md, Architecture). The last policy that matches wins.
+const boundaries: Rules['boundaries/dependencies'] = [
+  'error',
+  {
+    default: 'allow',
+    // A feature's own files are one element: check the imports between them too
+    checkInternals: true,
+    policies: [
+      {
+        from: { element: { type: 'shared' } },
+        disallow: { to: [{ element: { type: 'feature' } }, { file: { categories: 'shell' } }] },
+        message:
+          'Shared code must not know about features or the app shell. Move the code into the feature.',
+      },
+      {
+        from: { element: { type: 'feature' } },
+        disallow: { to: { file: { categories: 'shell' } } },
+        message:
+          'Routes compose features, never the other way round. Pass what the feature needs as props or arguments.',
+      },
+      {
+        disallow: { to: { file: { categories: 'private' } } },
+        message:
+          "A feature's root files are its interface; its subfolders are private. Import a root file, or add one.",
+      },
+      {
+        from: { element: { type: 'feature' } },
+        allow: {
+          to: {
+            element: {
+              type: 'feature',
+              captured: { feature: '{{from.element.captured.feature}}' },
+            },
+          },
+        },
+      },
+      {
+        from: { file: { categories: 'test' } },
+        disallow: { to: { file: { categories: 'private' } } },
+        message: 'Test a feature through its root files, not its private subfolders.',
+      },
+    ],
+  },
+]
 
 export default defineConfig({
   plugins: ['typescript', 'react', 'jsx-a11y', 'oxc', 'unicorn', 'import', 'promise', 'vitest'],
@@ -198,7 +166,21 @@ export default defineConfig({
     '@tanstack/eslint-plugin-query',
     '@tanstack/eslint-plugin-router',
     'eslint-plugin-playwright',
+    'eslint-plugin-boundaries',
   ],
+  settings: {
+    // Lets the boundaries plugin follow the '@/' alias
+    'import/resolver': { typescript: { project: 'tsconfig.app.json' } },
+    'boundaries/elements': [
+      { type: 'feature', pattern: 'src/features/*', capture: ['feature'] },
+      { type: 'shared', pattern: 'src/(components|hooks|lib)' },
+    ],
+    'boundaries/files': [
+      { pattern: 'src/features/*/*/**', category: 'private' },
+      { pattern: ['**/*.test.(ts|tsx)', 'src/test/**'], category: 'test' },
+      { pattern: ['src/routes/**', 'src/(router|main|routeTree.gen).(ts|tsx)'], category: 'shell' },
+    ],
+  },
   options: {
     typeAware: true,
     reportUnusedDisableDirectives: 'error',
@@ -250,7 +232,8 @@ export default defineConfig({
         location: 'anywhere',
       },
     ],
-    'no-restricted-imports': restrictedImports(featurePrivate),
+    'no-restricted-imports': restrictedImports(),
+    'boundaries/dependencies': boundaries,
 
     'typescript/ban-ts-comment': 'error',
     'typescript/consistent-return': 'off',
@@ -331,23 +314,19 @@ export default defineConfig({
   ignorePatterns: ['src/routeTree.gen.ts', '.claude/skills/**'],
   overrides: [
     {
-      files: ['src/**/*.test.{ts,tsx}', 'src/test/**'],
-      rules: { 'no-restricted-imports': restrictedImports(testPrivate) },
-    },
-    ...boundaries(['src/components', 'src/hooks', 'src/lib'], [sharedPattern]),
-    ...featureOverrides,
-    {
       files: ['*.config.ts', 'e2e/**'],
-      rules: {
-        'no-restricted-imports': ['error', { paths: restrictedPaths, patterns: basePatterns }],
-        'max-lines': 'off',
-      },
+      rules: { 'max-lines': 'off' },
+    },
+    {
+      // A config file runs outside the bundler, so '@/' does not resolve there
+      files: ['*.config.ts'],
+      rules: { 'no-restricted-imports': 'off' },
     },
     {
       files: ['src/components/ui/**'],
       rules: {
         // shadcn generates import * as React and memo hooks
-        'no-restricted-imports': importRule([], [sharedPattern]),
+        'no-restricted-imports': restrictedImports([]),
         // shadcn components are built on the native elements
         'react/forbid-elements': 'off',
         'shadcn/no-restyle': 'off',

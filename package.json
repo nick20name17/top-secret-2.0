@@ -11,7 +11,6 @@
     "format:check": "oxfmt --check",
     "lint": "oxlint --deny-warnings",
     "lint:fix": "oxlint --fix",
-    "guardrails": "bun scripts/guardrails.ts",
     "test": "vitest",
     "e2e": "playwright test",
     "ui:add": "sh -c 'yes n | shadcn add --yes \"$@\" && oxfmt src/components/ui && oxlint src/components/ui' --",
@@ -19,7 +18,7 @@
     "typecheck": "bun run routes && tsc -b",
     "doctor": "react-doctor --no-telemetry",
     "audit": "bun audit --audit-level=high",
-    "check": "bun run routes && bun run format:check && bun run lint && bun run guardrails && bun run typecheck && bun run doctor --blocking warning && vitest run",
+    "check": "bun run routes && bun run format:check && bun run lint && bun run typecheck && bun run doctor --blocking warning && vitest run",
     "verify": "bun run check && bun run audit && bun run e2e"
   },
   "dependencies": {
@@ -57,6 +56,8 @@
     "@vitejs/plugin-react": "6.2.1",
     "@vitest/browser-playwright": "5.1.0",
     "babel-plugin-react-compiler": "1.0.0",
+    "eslint-import-resolver-typescript": "4.4.5",
+    "eslint-plugin-boundaries": "7.4.2",
     "eslint-plugin-playwright": "2.12.2",
     "msw": "3.0.4",
     "oxfmt": "0.77.0",
@@ -73,5 +74,8 @@
     "minimatch": "11.0.4"
   },
   "packageManager": "bun@1.4.4",
+  "patchedDependencies": {
+    "react-doctor@0.9.22": "patches/react-doctor@0.9.22.patch"
+  },
   "trustedDependencies": []
 }
