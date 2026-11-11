@@ -1,7 +1,5 @@
-import { useQueryErrorResetBoundary } from '@tanstack/react-query'
 import { type ErrorComponentProps, Link, useRouter } from '@tanstack/react-router'
 import { TriangleAlertIcon } from 'lucide-react'
-import { useEffect } from 'react'
 
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
@@ -15,12 +13,6 @@ import {
 
 export function RouteError({ error }: ErrorComponentProps) {
   const router = useRouter()
-  const queryErrorResetBoundary = useQueryErrorResetBoundary()
-
-  // Lets "Try again" refetch the queries that threw
-  useEffect(() => {
-    queryErrorResetBoundary.reset()
-  }, [queryErrorResetBoundary])
 
   return (
     <div className='flex min-h-svh'>
