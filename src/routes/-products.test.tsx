@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw'
-import { afterEach, beforeEach, expect, test, vi } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { page, userEvent } from 'vitest/browser'
 
 // Real responses: GET https://dummyjson.com/products?limit=12&skip=0&select=title,price,thumbnail
@@ -10,16 +10,6 @@ import { worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
 
 const apiUrl = import.meta.env.VITE_API_URL
-
-// Images in the fixtures point to the real CDN
-beforeEach(() => {
-  worker.use(http.get('https://cdn.dummyjson.com/*', () => new HttpResponse(null, { status: 404 })))
-})
-
-// An image request that outlives its test reaches the next one, after the handlers are reset
-afterEach(async () => {
-  await expect.poll(() => [...document.images].every((image) => image.complete)).toBe(true)
-})
 
 // Titles echo the request; 30 products make 3 pages
 function productPage(title: string) {

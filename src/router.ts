@@ -9,8 +9,8 @@ import { routeTree } from '@/routeTree.gen'
 
 type SearchValue = string | number | boolean
 
-// Keep values as text: the default parser and parseSearchWith make ?q=2024 a number (TanStack/router#6044)
-// A repeated key is a list: ?tag=a&tag=b gives ['a', 'b'], but ?tag=a gives 'a', so a list schema must accept both
+// Values stay text: the default parser makes ?q=2024 a number (TanStack/router#6044)
+// A repeated key is a list: ?tag=a&tag=b gives ['a', 'b'], but ?tag=a gives 'a'
 export function parseSearch(searchStr: string) {
   const search = new Map<string, string | string[]>()
   for (const [key, value] of new URLSearchParams(searchStr)) {
