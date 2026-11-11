@@ -15,7 +15,7 @@
 - Test behaviour through the public interface: a component as the user sees it (find by role or label, act, assert on what is on screen), a module through what it exports, never through internal state or private storage. If a test breaks on a refactor that keeps behaviour, it is coupled to the implementation: rewrite it.
 - Use the highest seam that reaches the behaviour, and prefer seams that already have tests. Write a Playwright e2e test only for what needs the built app: routing, page loads, several pages in one flow.
 - Take expected values from a literal, a worked example or the spec. A value computed the way the code computes it makes the test tautological: it can never fail.
-- Test the behaviour you own. Leave `src/components/ui`, generated files and library behaviour untested.
+- Test the behaviour you own. Leave `src/components/ui`, generated files and library behaviour untested. The page for an unknown URL is the router's behaviour; a loader that turns an API 404 into `notFound()` is yours.
 - Mock only system boundaries: the network (MSW: `worker.use()` from `@/test/msw`), time, randomness. Use the real modules, hooks and providers you own.
 - Browser storage and cross-tab events are a system boundary too: write to them directly only to simulate another tab or corrupted data; otherwise go through the module's exports.
 - Copy mock response bodies from a real API response or its docs. A body written from the zod schema can never disagree with the code.
@@ -24,5 +24,6 @@
 - When a test fails, fix the code. Change the test only when the spec changed, and say so. Never skip a test, loosen an assertion or add a retry to make it pass.
 - For a bug, first write a test that goes red on the exact symptom the user reported, cut it down to the smallest failing case, then fix. If no seam reproduces the bug as it really happens, say so instead of adding a shallow test.
 - Make tests deterministic: fake time, fixed data, and wait on a condition (`expect.element`, `expect.poll`, web-first assertions).
+- `toHaveTextContent('…')` compares the whole text of the element. For a part of it or a RegExp, use `toMatchTextContent`.
 - Make each test pass alone and in any order: before it ends, settle every request it started and restore real timers.
 - When tests at a deeper seam cover a module, delete the old tests of its parts.

@@ -1,12 +1,5 @@
 import { expect, test } from '@playwright/test'
 
-test('unknown URL shows the not found page', async ({ page }) => {
-  await page.goto('/does-not-exist')
-
-  await expect(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
-  await expect(page).toHaveTitle('Page not found')
-})
-
 test.describe('theme', () => {
   test.use({ colorScheme: 'dark' })
 

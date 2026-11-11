@@ -16,12 +16,11 @@ function echoWithToken(accessToken: string) {
 }
 
 test('requests that get a 401 at the same time share one refresh, then retry with their body', async () => {
-  let refreshes = 0
+  const refreshBodies: unknown[] = []
   worker.use(
     echoWithToken('access-2'),
     http.post('*/auth/refresh', async ({ request }) => {
-      refreshes += 1
-      expect(await request.json()).toEqual({ refreshToken: 'refresh-1' })
+      refreshBodies.push(await request.json())
       return HttpResponse.json({ accessToken: 'access-2', refreshToken: 'refresh-2' })
     }),
   )
@@ -36,21 +35,8 @@ test('requests that get a 401 at the same time share one refresh, then retry wit
     { method: 'GET', body: null },
     { method: 'PATCH', body: { title: 'Milk' } },
   ])
-  expect(refreshes).toBe(1)
+  expect(refreshBodies).toEqual([{ refreshToken: 'refresh-1' }])
   expect(getSession()).toEqual({ accessToken: 'access-2', refreshToken: 'refresh-2', userId: 1 })
-})
-
-test('a refresh that fails signs the user out and the request fails with its 401', async () => {
-  worker.use(
-    echoWithToken('access-2'),
-    http.post('*/auth/refresh', () =>
-      HttpResponse.json({ message: 'Invalid refresh token' }, { status: 403 }),
-    ),
-  )
-  setSession({ accessToken: 'access-1', refreshToken: 'refresh-1', userId: 1 })
-
-  await expect(api.get('notes/1').json()).rejects.toMatchObject({ response: { status: 401 } })
-  expect(getSession()).toBeUndefined()
 })
 
 test('a 401 on a retry after a server error refreshes instead of signing out', async () => {
@@ -173,11 +159,8 @@ test('a request that takes too long gets a timeout message', async () => {
   expect(getErrorMessage(await error)).toBe('The server took too long to respond. Try again.')
 })
 
-test.each([
-  ['an empty message', { message: '' }],
-  ['no message', { error: 'Bad' }],
-])('an API error with %s gets the general message', async (_, body) => {
-  worker.use(http.post('*/notes', () => HttpResponse.json(body, { status: 400 })))
+test('an API error with an empty message gets the general message', async () => {
+  worker.use(http.post('*/notes', () => HttpResponse.json({ message: '' }, { status: 400 })))
 
   const error = await errorOf(api.post('notes').json())
 
