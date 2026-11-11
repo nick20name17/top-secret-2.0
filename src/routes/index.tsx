@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/features/theme/theme-toggle'
 import { APP_NAME } from '@/lib/app-name'
 
 export const Route = createFileRoute('/')({
@@ -10,7 +9,7 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <div className='flex min-h-svh p-6'>
+    <div className='flex p-6'>
       <div className='flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose'>
         <div>
           <h1 className='font-medium'>{APP_NAME}</h1>
@@ -18,7 +17,6 @@ function HomePage() {
           <p>We&apos;ve already added the button component for you.</p>
           <Button className='mt-2'>Button</Button>
         </div>
-        <ThemeToggle />
       </div>
     </div>
   )
