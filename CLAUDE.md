@@ -8,6 +8,7 @@
 - Keep routes thin: the loader fills the Query cache and the component composes features. Put UI that only one route uses in a `-`-prefixed folder next to it, such as `-components/`; the router ignores it.
 - Keep code where it is used until a second feature or route needs it; then move it into `src/components/`, `src/hooks/` or `src/lib/`. A second page with the same search form or pager is that moment.
 - Define a feature's server data in its `queries.ts` as `queryOptions()` factories, with each key next to its `queryFn`. Order key parts from generic to specific: `['todos', 'detail', id]`.
+- Wrap each zod schema of an API response in `apiSchema('<Name>', …)` from `@/lib/api-schema`, where `<Name>` is its schema in `src/lib/api.gen.ts`. Regenerate that file with `bun run api:types`.
 
 ## Tests
 

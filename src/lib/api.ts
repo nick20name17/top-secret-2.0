@@ -1,6 +1,7 @@
 import ky, { type KyRequest, isHTTPError, isNetworkError, isTimeoutError } from 'ky'
 import { z } from 'zod/mini'
 
+import { apiSchema } from '@/lib/api-schema'
 import { type Session, clearSession, getSession, setSession, tokensSchema } from '@/lib/session'
 
 const base = ky.create({
@@ -52,7 +53,7 @@ export const api = base.extend({
   },
 })
 
-const apiErrorSchema = z.object({ message: z.string().check(z.minLength(1)) })
+const apiErrorSchema = apiSchema('Error', z.object({ message: z.string().check(z.minLength(1)) }))
 
 export function getErrorMessage(error: unknown) {
   if (isNetworkError(error)) return 'Check your internet connection and try again.'

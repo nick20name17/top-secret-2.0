@@ -14,6 +14,7 @@
     "test": "vitest",
     "e2e": "playwright test",
     "ui:add": "sh -c 'yes n | shadcn add --yes \"$@\" && oxfmt src/components/ui && oxlint src/components/ui' --",
+    "api:types": "bun --env-file=.env exec 'bunx openapi-typescript@7.13.0 $VITE_API_URL/openapi.json -o src/lib/api.gen.ts'",
     "routes": "bun --bun tsr generate",
     "typecheck": "bun run routes && tsc -b",
     "doctor": "react-doctor --no-telemetry",
