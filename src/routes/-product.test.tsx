@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw'
-import { expect, test } from 'vitest'
+import { afterEach, beforeEach, expect, test } from 'vitest'
 import { page } from 'vitest/browser'
 
 // Real response: GET https://dummyjson.com/products/1?select=title,price,thumbnail,description
@@ -8,6 +8,16 @@ import { worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
 
 const apiUrl = import.meta.env.VITE_API_URL
+
+// Images in the fixtures point to the real CDN
+beforeEach(() => {
+  worker.use(http.get('https://cdn.dummyjson.com/*', () => new HttpResponse(null, { status: 404 })))
+})
+
+// An image request that outlives its test reaches the next one, after the handlers are reset
+afterEach(async () => {
+  await expect.poll(() => [...document.images].every((image) => image.complete)).toBe(true)
+})
 
 test('a product page shows the product', async () => {
   worker.use(http.get(`${apiUrl}/products/1`, () => HttpResponse.json(mascara)))
