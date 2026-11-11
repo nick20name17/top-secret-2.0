@@ -97,10 +97,6 @@ function restrictedImports(paths = restrictedPaths): Rules['no-restricted-import
     {
       paths,
       patterns: [
-        {
-          regex: '^\\.\\.?/',
-          message: "Import with '@/', so the module boundary rule can see the path.",
-        },
         { group: ['zod', 'zod/**', '!zod/mini'], message: zodMessage },
         {
           group: ['@testing-library/**'],
@@ -164,6 +160,7 @@ export default defineConfig({
     '@tanstack/eslint-plugin-router',
     'eslint-plugin-playwright',
     'eslint-plugin-boundaries',
+    'eslint-plugin-no-relative-import-paths',
   ],
   settings: {
     // Lets the boundaries plugin follow the '@/' alias
@@ -231,6 +228,7 @@ export default defineConfig({
     ],
     'no-restricted-imports': restrictedImports(),
     'boundaries/dependencies': boundaries,
+    'no-relative-import-paths/no-relative-import-paths': ['error', { rootDir: 'src', prefix: '@' }],
 
     'typescript/ban-ts-comment': 'error',
     'typescript/consistent-return': 'off',
@@ -312,12 +310,7 @@ export default defineConfig({
   overrides: [
     {
       files: ['*.config.ts', 'e2e/**'],
-      rules: { 'max-lines': 'off' },
-    },
-    {
-      // A config file runs outside the bundler, so '@/' does not resolve there
-      files: ['*.config.ts'],
-      rules: { 'no-restricted-imports': 'off' },
+      rules: { 'max-lines': 'off', 'no-relative-import-paths/no-relative-import-paths': 'off' },
     },
     {
       files: ['src/components/ui/**'],

@@ -36,7 +36,7 @@ for file in "$baseline_file" "$failed_file"; do
 done
 
 mkdir -p "$cache_dir"
-if output=$(export NO_COLOR=1 FORCE_COLOR=0; bun run format 2>&1 >/dev/null && bun run check 2>&1); then
+if output=$(export NO_COLOR=1 FORCE_COLOR=0; bun run lint:fix >/dev/null 2>&1; bun run format 2>&1 >/dev/null && bun run check 2>&1); then
   # A turn without a prompt (a background task finished) leaves the baseline stale
   tree_hash >"$baseline_file"
   exit 0
