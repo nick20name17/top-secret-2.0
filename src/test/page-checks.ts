@@ -68,12 +68,22 @@ function layoutShifts() {
     .map(({ node }) => `Moved on its own: ${node?.outerHTML.slice(0, 120)}`)
 }
 
+// The rules whose result depends on the theme
+const visualRules = ['color-contrast', 'link-in-text-block']
+
+// A visual rule axe could not decide, such as text on a gradient, counts as a problem
 async function axeProblems(theme: 'light' | 'dark', options: axe.RunOptions) {
   document.documentElement.classList.toggle('dark', theme === 'dark')
-  const { violations } = await axe.run({ ...options, resultTypes: ['violations'] })
-  return violations.map(
+  const { violations, incomplete } = await axe.run({
+    ...options,
+    resultTypes: ['violations', 'incomplete'],
+  })
+  return [...violations, ...incomplete.filter(({ id }) => visualRules.includes(id))].flatMap(
     ({ help, nodes }) =>
-      `In the ${theme} theme: ${help}: ${nodes.map((node) => node.html).join(' ')}`,
+      nodes.map(({ html, any, all, none }) => {
+        const reasons = [...any, ...all, ...none].map(({ message }) => message).join('; ')
+        return `In the ${theme} theme: ${help}: ${html}: ${reasons}`
+      }),
   )
 }
 
@@ -94,7 +104,7 @@ async function pageProblems() {
     // The width the tests run at, so the page is left at it
     ...(await layoutProblemsAt(414)),
     ...(await axeProblems('light', { rules: page.getByRole('main').query() ? {} : pageRules })),
-    ...(await axeProblems('dark', { runOnly: ['color-contrast'] })),
+    ...(await axeProblems('dark', { runOnly: visualRules })),
   ]
   document.documentElement.classList.toggle('dark', wasDark)
   noTransitions.remove()
