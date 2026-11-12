@@ -1,9 +1,6 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { Link, createFileRoute, notFound } from '@tanstack/react-router'
+import { Outlet, createFileRoute, notFound } from '@tanstack/react-router'
 import { isHTTPError } from 'ky'
 
-import { buttonVariants } from '@/components/ui/button'
-import { ProductDetails } from '@/features/products/product-details'
 import { productDetailQuery } from '@/features/products/queries'
 
 export const Route = createFileRoute('/products_/$id')({
@@ -16,21 +13,13 @@ export const Route = createFileRoute('/products_/$id')({
     }
   },
   head: ({ loaderData }) => ({ meta: [{ title: loaderData?.title }] }),
-  component: ProductPage,
+  component: ProductLayout,
 })
 
-function ProductPage() {
-  const { id } = Route.useParams()
-  const { data } = useSuspenseQuery(productDetailQuery(id))
-
+function ProductLayout() {
   return (
     <div className='mx-auto flex max-w-2xl flex-col gap-6 p-6'>
-      <div>
-        <Link to='/products' className={buttonVariants({ variant: 'outline' })}>
-          All products
-        </Link>
-      </div>
-      <ProductDetails product={data} />
+      <Outlet />
     </div>
   )
 }

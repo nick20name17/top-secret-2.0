@@ -1,10 +1,11 @@
 import { standardSchemaResolver } from '@hookform/resolvers/standard-schema'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { z } from 'zod/mini'
 
+import { FormField } from '@/components/form-field'
 import { Button } from '@/components/ui/button'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { FieldError, FieldGroup } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { loginMutation } from '@/features/auth/queries'
 import { getErrorMessage } from '@/lib/api'
@@ -29,39 +30,12 @@ export function LoginForm({ onSignedIn }: { onSignedIn: () => void }) {
       onSubmit={form.handleSubmit((values) => mutation.mutate(values, { onSuccess: onSignedIn }))}
     >
       <FieldGroup>
-        <Controller
-          name='username'
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Username</FieldLabel>
-              <Input
-                {...field}
-                id={field.name}
-                autoComplete='username'
-                aria-invalid={fieldState.invalid}
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-        <Controller
-          name='password'
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-              <Input
-                {...field}
-                id={field.name}
-                type='password'
-                autoComplete='current-password'
-                aria-invalid={fieldState.invalid}
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
+        <FormField control={form.control} name='username' label='Username'>
+          {(field) => <Input {...field} autoComplete='username' />}
+        </FormField>
+        <FormField control={form.control} name='password' label='Password'>
+          {(field) => <Input {...field} type='password' autoComplete='current-password' />}
+        </FormField>
         {mutation.isError && <FieldError>{getErrorMessage(mutation.error)}</FieldError>}
         <Button type='submit' disabled={mutation.isPending}>
           Sign in
