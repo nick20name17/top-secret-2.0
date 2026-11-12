@@ -12,6 +12,7 @@
 
 ## Tests
 
+- Work in vertical slices: one test, the code that turns it green, then the next test.
 - Watch every new test go red before the code for it exists. Red is the assertion failing on the missing behaviour; an import, type or setup error is not red yet. If a new test is green from the start, break the code it covers, watch it go red, then restore the code.
 - For a bug, first write a test that goes red on the exact symptom the user reported, cut it down to the smallest failing case, then fix. If no seam reproduces the bug as it really happens, say so instead of adding a shallow test.
 - Keep code testable: pass dependencies in, return results instead of mutating arguments, and give each API endpoint its own function so a mock returns one shape.
