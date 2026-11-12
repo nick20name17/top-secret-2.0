@@ -33,12 +33,22 @@ test('a product the API does not have shows the not found page', async () => {
   await expect.element(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
 })
 
-test('the product page links to its edit form', async () => {
+test('the product page links a signed-in user to its edit form', async () => {
+  signIn()
   await renderRoute('/products/1')
 
   await expect
     .element(page.getByRole('link', { name: 'Edit' }))
     .toHaveAttribute('href', '/products/1/edit')
+})
+
+test('a signed-out user sees no link to the edit form', async () => {
+  await renderRoute('/products/1')
+
+  await expect
+    .element(page.getByRole('heading', { name: 'Essence Mascara Lash Princess' }))
+    .toBeVisible()
+  await expect.element(page.getByRole('link', { name: 'Edit' })).not.toBeInTheDocument()
 })
 
 test('the edit form sends a signed-out user to sign in', async () => {
