@@ -33,7 +33,7 @@ function RootLayout() {
           <ThemeToggle />
         </div>
       </header>
-      <main>
+      <main className='flex flex-1 flex-col *:w-full'>
         <Outlet />
       </main>
     </>

@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
+import { Button } from '@/components/ui/button'
 import { meQuery } from '@/features/auth/queries'
-import { SignOutButton } from '@/features/auth/sign-out-button'
+import { clearSession } from '@/lib/session'
 
 export const Route = createFileRoute('/_authed/profile')({
   head: () => ({ meta: [{ title: 'Profile' }] }),
@@ -17,7 +18,9 @@ function ProfilePage() {
       <h1 className='text-lg font-medium'>{`${user.firstName} ${user.lastName}`}</h1>
       <p className='text-sm text-muted-foreground'>{user.email}</p>
       <div>
-        <SignOutButton />
+        <Button variant='outline' onClick={clearSession}>
+          Sign out
+        </Button>
       </div>
     </div>
   )

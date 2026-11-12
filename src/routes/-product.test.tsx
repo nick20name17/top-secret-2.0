@@ -6,6 +6,7 @@ import { page, userEvent } from 'vitest/browser'
 import mascara from '@/test/fixtures/products-1.json'
 import { apiUrl, worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
+import { signIn } from '@/test/sign-in'
 
 beforeEach(() => {
   worker.use(http.get(`${apiUrl}/products/1`, () => HttpResponse.json(mascara)))
@@ -40,6 +41,12 @@ test('the product page links to its edit form', async () => {
     .toHaveAttribute('href', '/products/1/edit')
 })
 
+test('the edit form sends a signed-out user to sign in', async () => {
+  await renderRoute('/products/1/edit')
+
+  await expect.element(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
+})
+
 // PUT returns the product with the sent fields changed: https://dummyjson.com/docs/products#products-update
 function mockProductUpdate() {
   const sent: unknown[] = []
@@ -54,6 +61,7 @@ function mockProductUpdate() {
 
 test('saving the edit form sends the fields and shows the updated product', async () => {
   const sent = mockProductUpdate()
+  signIn()
   await renderRoute('/products/1/edit')
 
   await userEvent.fill(page.getByLabelText('Title'), ' Lash Queen ')
@@ -69,6 +77,7 @@ test('saving the edit form sends the fields and shows the updated product', asyn
 
 test('an empty title and a zero price show what to fix and send nothing', async () => {
   const sent = mockProductUpdate()
+  signIn()
   await renderRoute('/products/1/edit')
 
   await userEvent.fill(page.getByLabelText('Title'), '  ')
@@ -86,6 +95,7 @@ test('an API error while saving shows its message and keeps the form', async () 
       HttpResponse.json({ message: 'Title is taken' }, { status: 400 }),
     ),
   )
+  signIn()
   await renderRoute('/products/1/edit')
 
   await userEvent.click(page.getByRole('button', { name: 'Save' }))

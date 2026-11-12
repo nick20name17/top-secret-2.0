@@ -170,7 +170,7 @@
   }
 
   #root {
-    @apply isolate;
+    @apply isolate flex min-h-svh flex-col;
   }
 
   button:not(:disabled),

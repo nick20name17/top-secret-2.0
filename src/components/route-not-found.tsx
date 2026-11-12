@@ -13,7 +13,7 @@ import {
 
 export function RouteNotFound() {
   return (
-    <div className='flex min-h-svh'>
+    <>
       <title>Page not found</title>
       <Empty>
         <EmptyHeader>
@@ -33,6 +33,6 @@ export function RouteNotFound() {
           </Link>
         </EmptyContent>
       </Empty>
-    </div>
+    </>
   )
 }

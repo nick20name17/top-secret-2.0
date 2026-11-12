@@ -23,7 +23,7 @@ function LoginPage() {
   const navigate = Route.useNavigate()
 
   return (
-    <div className='flex min-h-svh items-center justify-center p-6'>
+    <div className='flex flex-1 items-center justify-center p-6'>
       <div className='flex w-full max-w-sm flex-col gap-6'>
         <h1 className='text-lg font-medium'>Sign in</h1>
         <LoginForm

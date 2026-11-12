@@ -15,7 +15,7 @@ export function RouteError({ error }: ErrorComponentProps) {
   const router = useRouter()
 
   return (
-    <div className='flex min-h-svh'>
+    <>
       <title>Something went wrong</title>
       <Empty>
         <EmptyHeader>
@@ -40,6 +40,6 @@ export function RouteError({ error }: ErrorComponentProps) {
           </div>
         </EmptyContent>
       </Empty>
-    </div>
+    </>
   )
 }
