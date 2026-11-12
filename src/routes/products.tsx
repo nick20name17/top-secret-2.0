@@ -1,10 +1,10 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { keepPreviousData, noop, useQuery } from '@tanstack/react-query'
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import { z } from 'zod/mini'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ProductList } from '@/features/products/product-list'
+import { ProductList, ProductListSkeleton } from '@/features/products/product-list'
 import { productListQuery } from '@/features/products/queries'
 import { PAGE_SIZES, Pager } from '@/routes/-components/pager'
 
@@ -29,7 +29,7 @@ export const Route = createFileRoute('/products')({
   validateSearch: searchSchema,
   search: { middlewares: [stripSearchParams(defaultSearch)] },
   loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => context.queryClient.query(productListQuery(deps)),
+  loader: ({ context, deps }) => void context.queryClient.query(productListQuery(deps)).catch(noop),
   head: () => ({ meta: [{ title: 'Products' }] }),
   component: ProductsPage,
 })
@@ -37,8 +37,7 @@ export const Route = createFileRoute('/products')({
 function ProductsPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  const { data } = useSuspenseQuery(productListQuery(search))
-  const pageCount = Math.max(1, Math.ceil(data.total / search.limit))
+  const { data } = useQuery({ ...productListQuery(search), placeholderData: keepPreviousData })
 
   return (
     <div className='mx-auto flex max-w-2xl flex-col gap-6 p-6'>
@@ -65,8 +64,18 @@ function ProductsPage() {
           <Button type='submit'>Search</Button>
         </form>
       </search>
-      <ProductList products={data.products} />
-      <Pager page={search.page} pageCount={pageCount} limit={search.limit} />
+      {data ? (
+        <>
+          <ProductList products={data.products} />
+          <Pager
+            page={search.page}
+            pageCount={Math.max(1, Math.ceil(data.total / search.limit))}
+            limit={search.limit}
+          />
+        </>
+      ) : (
+        <ProductListSkeleton count={search.limit} />
+      )}
     </div>
   )
 }

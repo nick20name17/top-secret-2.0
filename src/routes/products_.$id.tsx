@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
 import { buttonVariants } from '@/components/ui/button'
@@ -15,7 +15,7 @@ export const Route = createFileRoute('/products_/$id')({
 function ProductPage() {
   const { id } = Route.useParams()
   const signedIn = useSignedIn()
-  const { data } = useSuspenseQuery(productDetailQuery(id))
+  const { data } = useQuery(productDetailQuery(id))
 
   return (
     <div className='mx-auto flex max-w-2xl flex-col gap-6 p-6'>
@@ -29,7 +29,7 @@ function ProductPage() {
           </Link>
         )}
       </div>
-      <ProductDetails product={data} />
+      {data && <ProductDetails product={data} />}
     </div>
   )
 }

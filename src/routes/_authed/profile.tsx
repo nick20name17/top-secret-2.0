@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Button } from '@/components/ui/button'
@@ -6,12 +6,14 @@ import { meQuery } from '@/features/auth/queries'
 import { clearSession } from '@/lib/session'
 
 export const Route = createFileRoute('/_authed/profile')({
+  loader: ({ context }) => context.queryClient.query(meQuery()),
   head: () => ({ meta: [{ title: 'Profile' }] }),
   component: ProfilePage,
 })
 
 function ProfilePage() {
-  const { data: user } = useSuspenseQuery(meQuery())
+  const { data: user } = useQuery(meQuery())
+  if (!user) return null
 
   return (
     <div className='mx-auto flex max-w-2xl flex-col gap-2 p-6'>

@@ -87,10 +87,22 @@ const restrictedPaths = [
     message: compilerMessage,
   },
   {
+    name: '@tanstack/react-query',
+    importNames: ['useSuspenseQuery', 'useSuspenseInfiniteQuery', 'useSuspenseQueries'],
+    message:
+      'A suspended query shows a Suspense fallback. Start the query in the route loader and read it with useQuery.',
+  },
+  {
+    name: 'react',
+    importNames: ['Suspense'],
+    message:
+      'React holds back content behind a Suspense fallback. Load in the route loader and render the pending state of useQuery.',
+  },
+  {
     name: '@tanstack/react-router',
     importNames: ['useLoaderData'],
     message:
-      'Loaders only fill the Query cache. Read the data with useSuspenseQuery and the same queryOptions, so the query stays fresh.',
+      'Loaders only fill the Query cache. Read the data with useQuery and the same queryOptions, so the query stays fresh.',
   },
 ]
 
@@ -98,7 +110,7 @@ const apiClientPath = {
   name: '@/lib/api',
   importNames: ['api'],
   message:
-    "Request server data in the feature's queries.ts as queryOptions(); routes and components read it with useSuspenseQuery.",
+    "Request server data in the feature's queries.ts as queryOptions(); routes and components read it with useQuery.",
 }
 
 function restrictedImports(
