@@ -2,6 +2,7 @@ import { defineConfig } from 'react-doctor/api'
 
 export default defineConfig({
   noScore: true,
+  blocking: 'warning',
   customRulesOnly: true,
   rules: {
     'react-doctor/no-set-state-in-render': 'off',
