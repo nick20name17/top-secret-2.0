@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as AuthedRouteRouteImport } from './routes/_authed/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as AuthedProfileRouteImport } from './routes/_authed/profile'
@@ -22,7 +22,7 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedRoute = AuthedRouteImport.update({
+const AuthedRouteRoute = AuthedRouteRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -39,7 +39,7 @@ const ProductsRoute = ProductsRouteImport.update({
 const AuthedProfileRoute = AuthedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const ProductsIdRoute = ProductsIdRouteImport.update({
   id: '/products_/$id',
@@ -49,7 +49,7 @@ const ProductsIdRoute = ProductsIdRouteImport.update({
 const AuthedProductsIdEditRoute = AuthedProductsIdEditRouteImport.update({
   id: '/products_/$id/edit',
   path: '/products/$id/edit',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -71,7 +71,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authed': typeof AuthedRouteWithChildren
+  '/_authed': typeof AuthedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/products': typeof ProductsRoute
   '/_authed/profile': typeof AuthedProfileRoute
@@ -108,7 +108,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthedRoute: typeof AuthedRouteWithChildren
+  AuthedRouteRoute: typeof AuthedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   ProductsRoute: typeof ProductsRoute
   ProductsIdRoute: typeof ProductsIdRoute
@@ -127,7 +127,7 @@ declare module '@tanstack/react-router' {
       id: '/_authed'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthedRouteImport
+      preLoaderRoute: typeof AuthedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -149,7 +149,7 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthedProfileRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/products_/$id': {
       id: '/products_/$id'
@@ -163,27 +163,28 @@ declare module '@tanstack/react-router' {
       path: '/products/$id/edit'
       fullPath: '/products/$id/edit'
       preLoaderRoute: typeof AuthedProductsIdEditRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
   }
 }
 
-interface AuthedRouteChildren {
+interface AuthedRouteRouteChildren {
   AuthedProfileRoute: typeof AuthedProfileRoute
   AuthedProductsIdEditRoute: typeof AuthedProductsIdEditRoute
 }
 
-const AuthedRouteChildren: AuthedRouteChildren = {
+const AuthedRouteRouteChildren: AuthedRouteRouteChildren = {
   AuthedProfileRoute: AuthedProfileRoute,
   AuthedProductsIdEditRoute: AuthedProductsIdEditRoute,
 }
 
-const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
+const AuthedRouteRouteWithChildren = AuthedRouteRoute._addFileChildren(
+  AuthedRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthedRoute: AuthedRouteWithChildren,
+  AuthedRouteRoute: AuthedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   ProductsRoute: ProductsRoute,
   ProductsIdRoute: ProductsIdRoute,
