@@ -10,7 +10,7 @@ export const tokensSchema = apiSchema(
 )
 
 // userId tells a token refresh from another user signing in
-export const sessionSchema = z.extend(tokensSchema, { userId: z.number() })
+const sessionSchema = z.extend(tokensSchema, { userId: z.number() })
 
 export type Session = z.infer<typeof sessionSchema>
 

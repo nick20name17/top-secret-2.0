@@ -26,7 +26,6 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: { force: mode === 'test' },
   test: {
     include: ['src/**/*.test.{ts,tsx}'],
-    passWithNoTests: true,
     setupFiles: ['src/test/setup.ts'],
     browser: {
       enabled: true,

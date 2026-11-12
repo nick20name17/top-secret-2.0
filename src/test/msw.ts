@@ -10,7 +10,8 @@ const remoteImages = http.get(
 
 export const worker = setupWorker(remoteImages)
 
-const apiUrl = new URL(import.meta.env.VITE_API_URL, window.location.origin).href
+export const apiUrl = import.meta.env.VITE_API_URL
+const absoluteApiUrl = new URL(apiUrl, window.location.origin).href
 
 export async function startWorker() {
   await worker.start({
@@ -18,7 +19,7 @@ export async function startWorker() {
     onUnhandledFrame({ frame, defaults }) {
       if (!(frame instanceof HttpNetworkFrame)) return
       const { url } = frame.data.request
-      if (url.startsWith(apiUrl) || new URL(url).origin !== window.location.origin) {
+      if (url.startsWith(absoluteApiUrl) || new URL(url).origin !== window.location.origin) {
         defaults.error()
       }
     },

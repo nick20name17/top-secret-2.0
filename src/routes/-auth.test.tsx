@@ -8,11 +8,9 @@ import { SESSION_KEY, setSession } from '@/lib/session'
 import login from '@/test/fixtures/auth-login.json'
 import user from '@/test/fixtures/users-1.json'
 import otherUser from '@/test/fixtures/users-2.json'
-import { worker } from '@/test/msw'
+import { apiUrl, worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
 import { signIn } from '@/test/sign-in'
-
-const apiUrl = import.meta.env.VITE_API_URL
 
 test('signing in opens the page the user first asked for', async () => {
   let credentials: unknown

@@ -1,4 +1,4 @@
-- Add shadcn components only with `bun run ui:add <name>`.
+- Build UI from the shadcn components in `src/components/ui` and pass them layout classes only. Add a missing one with `bun run ui:add <name>`.
 - When the request needs something the API doesn't have (a field, a filter, an endpoint), ask the user how to get it before writing code.
 
 ## Architecture

@@ -4,7 +4,8 @@ set -uo pipefail
 input=$(cat)
 field() { jq -r ".$1 // empty" <<<"$input"; }
 
-cd "${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}" || exit 0
+# Not CLAUDE_PROJECT_DIR: in a worktree session it is the main checkout
+cd "$(field cwd)" 2>/dev/null && cd "$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
 
 cache_dir=node_modules/.cache
 session=$(field session_id | tr -cd 'A-Za-z0-9-')
