@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => ({
     include: ['src/**/*.test.{ts,tsx}'],
     passWithNoTests: true,
     setupFiles: ['src/test/setup.ts'],
+    testTimeout: 5000,
     browser: {
       enabled: true,
       provider: playwright({ contextOptions: { colorScheme: 'light' } }),

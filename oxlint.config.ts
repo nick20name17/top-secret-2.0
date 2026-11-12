@@ -21,6 +21,8 @@ const ownModuleMockMessage =
   'Mock only system boundaries (network, time, randomness); use the real modules you own.'
 const userLocatorMessage =
   'Find elements the way a user does: getByRole, getByLabelText, getByText.'
+const wholeTextMessage =
+  'toHaveTextContent compares the whole text of the element. Use toMatchTextContent: it takes a part of the text or a RegExp.'
 const waitMessage =
   'Wait on a condition (expect.element, expect.poll, web-first assertions) or use fake timers.'
 
@@ -33,6 +35,7 @@ const testRules: Rules = {
       property,
       message: userLocatorMessage,
     })),
+    { property: 'toHaveTextContent', message: wholeTextMessage },
   ],
   'no-restricted-globals': [
     'error',
@@ -91,7 +94,16 @@ const restrictedPaths = [
   },
 ]
 
-function restrictedImports(paths = restrictedPaths): Rules['no-restricted-imports'] {
+const apiClientPath = {
+  name: '@/lib/api',
+  importNames: ['api'],
+  message:
+    "Request server data in the feature's queries.ts as queryOptions(); routes and components read it with useSuspenseQuery.",
+}
+
+function restrictedImports(
+  paths = [...restrictedPaths, apiClientPath],
+): Rules['no-restricted-imports'] {
   return [
     'error',
     {
@@ -292,8 +304,11 @@ export default defineConfig({
     'import/no-duplicates': 'error',
     'import/no-mutable-exports': 'error',
     'import/no-unassigned-import': ['error', { allow: ['**/*.css'] }],
-    // src/test/setup.ts asserts in afterEach
-    'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: ['afterEach'] }],
+    // src/test/setup.ts asserts after each test
+    'vitest/no-standalone-expect': [
+      'error',
+      { additionalTestBlockFunctions: ['afterEach', 'onTestFinished'] },
+    ],
     'oxc/no-barrel-file': ['error', { threshold: 0 }],
 
     ...asErrors(query.configs.recommendedStrict.rules),
@@ -311,6 +326,10 @@ export default defineConfig({
     {
       files: ['*.config.ts', 'e2e/**'],
       rules: { 'max-lines': 'off', 'no-relative-import-paths/no-relative-import-paths': 'off' },
+    },
+    {
+      files: ['src/features/*/queries.ts', 'src/lib/**'],
+      rules: { 'no-restricted-imports': restrictedImports(restrictedPaths) },
     },
     {
       files: ['src/components/ui/**'],
@@ -372,6 +391,8 @@ export default defineConfig({
           { mock: ownModuleMockMessage, doMock: ownModuleMockMessage },
         ],
         'vitest/no-conditional-in-test': 'error',
+        'vitest/no-disabled-tests': 'error',
+        'vitest/no-focused-tests': 'error',
         'vitest/consistent-test-it': ['error', { fn: 'test', withinDescribe: 'test' }],
         'vitest/no-identical-title': 'error',
         'vitest/no-duplicate-hooks': 'error',
