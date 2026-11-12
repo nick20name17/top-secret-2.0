@@ -4,8 +4,6 @@ import { z } from 'zod/mini'
 import { api } from '@/lib/api'
 import { apiSchema } from '@/lib/api-schema'
 
-export const PAGE_SIZE = 12
-
 const productSchema = apiSchema(
   'Product',
   z.object({
@@ -29,15 +27,16 @@ const productPageSchema = apiSchema(
 interface ProductListParams {
   q: string
   page: number
+  limit: number
 }
 
-function fetchProducts({ q, page }: ProductListParams, signal: AbortSignal) {
+function fetchProducts({ q, page, limit }: ProductListParams, signal: AbortSignal) {
   return api
     .get(q ? 'products/search' : 'products', {
       searchParams: {
         ...(q && { q }),
-        limit: PAGE_SIZE,
-        skip: (page - 1) * PAGE_SIZE,
+        limit,
+        skip: (page - 1) * limit,
         select: 'title,price,thumbnail',
       },
       signal,

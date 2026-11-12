@@ -2,19 +2,26 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, stripSearchParams } from '@tanstack/react-router'
 import { z } from 'zod/mini'
 
-import { Pager } from '@/components/pager'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ProductList } from '@/features/products/product-list'
-import { PAGE_SIZE, productListQuery } from '@/features/products/queries'
+import { productListQuery } from '@/features/products/queries'
+import { PAGE_SIZES, Pager } from '@/routes/-components/pager'
 
-const defaultSearch = { q: '', page: 1 }
+const defaultSearch = { q: '', page: 1, limit: 12 }
 
 const searchSchema = z.object({
   q: z.prefault(z.catch(z.string(), defaultSearch.q), defaultSearch.q),
   page: z.prefault(
     z.catch(z.coerce.number<number>().check(z.int(), z.positive()), defaultSearch.page),
     defaultSearch.page,
+  ),
+  limit: z.prefault(
+    z.catch(
+      z.coerce.number<number>().check(z.refine((limit) => PAGE_SIZES.includes(limit))),
+      defaultSearch.limit,
+    ),
+    defaultSearch.limit,
   ),
 })
 
@@ -31,7 +38,7 @@ function ProductsPage() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
   const { data } = useSuspenseQuery(productListQuery(search))
-  const pageCount = Math.max(1, Math.ceil(data.total / PAGE_SIZE))
+  const pageCount = Math.max(1, Math.ceil(data.total / search.limit))
 
   return (
     <div className='mx-auto flex max-w-2xl flex-col gap-6 p-6'>
@@ -42,7 +49,9 @@ function ProductsPage() {
           onSubmit={(event) => {
             event.preventDefault()
             const q = new FormData(event.currentTarget).get('q')
-            void navigate({ search: { q: typeof q === 'string' ? q.trim() : '', page: 1 } })
+            void navigate({
+              search: (prev) => ({ ...prev, q: typeof q === 'string' ? q.trim() : '', page: 1 }),
+            })
           }}
         >
           {/* key resets the input when the URL changes */}
@@ -57,7 +66,7 @@ function ProductsPage() {
         </form>
       </search>
       <ProductList products={data.products} />
-      <Pager page={search.page} pageCount={pageCount} />
+      <Pager page={search.page} pageCount={pageCount} limit={search.limit} />
     </div>
   )
 }
