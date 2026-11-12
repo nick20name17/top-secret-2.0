@@ -1,15 +1,15 @@
 {
   "permissions": {
-    "deny": ["Edit(/src/routeTree.gen.ts)", "Edit(/src/lib/api.gen.ts)", "Edit(/bun.lock)"],
-    "ask": [
-      "Edit(/oxlint.config.ts)",
-      "Edit(/oxfmt.config.ts)",
-      "Edit(/doctor.config.ts)",
-      "Edit(/vite.config.ts)",
-      "Edit(/playwright.config.ts)",
-      "Edit(/tsconfig*.json)",
-      "Edit(/.claude/**)"
-    ]
+    "deny": ["Edit(/src/routeTree.gen.ts)", "Edit(/src/lib/api.gen.ts)", "Edit(/bun.lock)"]
+    // "ask": [
+    //   "Edit(/oxlint.config.ts)",
+    //   "Edit(/oxfmt.config.ts)",
+    //   "Edit(/doctor.config.ts)",
+    //   "Edit(/vite.config.ts)",
+    //   "Edit(/playwright.config.ts)",
+    //   "Edit(/tsconfig*.json)",
+    //   "Edit(/.claude/**)"
+    // ]
   },
   "hooks": {
     "UserPromptSubmit": [
