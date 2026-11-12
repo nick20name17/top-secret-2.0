@@ -1,25 +1,31 @@
-import { Outlet, createFileRoute, notFound } from '@tanstack/react-router'
-import { isHTTPError } from 'ky'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { productDetailQuery } from '@/features/products/queries'
+import { buttonVariants } from '@/components/ui/button'
+import { ProductDetails } from '@/features/products/product-details'
+import { loadProduct, productDetailQuery } from '@/features/products/queries'
 
 export const Route = createFileRoute('/products_/$id')({
-  loader: async ({ context, params }) => {
-    try {
-      return await context.queryClient.query(productDetailQuery(params.id))
-    } catch (error) {
-      if (isHTTPError(error) && error.response.status === 404) throw notFound()
-      throw error
-    }
-  },
+  loader: ({ context, params }) => loadProduct(context.queryClient, params.id),
   head: ({ loaderData }) => ({ meta: [{ title: loaderData?.title }] }),
-  component: ProductLayout,
+  component: ProductPage,
 })
 
-function ProductLayout() {
+function ProductPage() {
+  const { id } = Route.useParams()
+  const { data } = useSuspenseQuery(productDetailQuery(id))
+
   return (
     <div className='mx-auto flex max-w-2xl flex-col gap-6 p-6'>
-      <Outlet />
+      <div className='flex gap-2'>
+        <Link to='/products' className={buttonVariants({ variant: 'outline' })}>
+          All products
+        </Link>
+        <Link to='/products/$id/edit' params={{ id }} className={buttonVariants()}>
+          Edit
+        </Link>
+      </div>
+      <ProductDetails product={data} />
     </div>
   )
 }

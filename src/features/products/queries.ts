@@ -1,4 +1,6 @@
 import { type QueryClient, mutationOptions, queryOptions } from '@tanstack/react-query'
+import { notFound } from '@tanstack/react-router'
+import { isHTTPError } from 'ky'
 import { z } from 'zod/mini'
 
 import { api } from '@/lib/api'
@@ -69,6 +71,15 @@ export function productDetailQuery(id: string) {
         })
         .json(productDetailSchema),
   })
+}
+
+export async function loadProduct(client: QueryClient, id: string) {
+  try {
+    return await client.query(productDetailQuery(id))
+  } catch (error) {
+    if (isHTTPError(error) && error.response.status === 404) throw notFound()
+    throw error
+  }
 }
 
 export function updateProductMutation(client: QueryClient, id: number) {
