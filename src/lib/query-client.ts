@@ -6,6 +6,7 @@ export function createQueryClient() {
       queries: {
         staleTime: 60_000,
         retry: false,
+        throwOnError: (_error, query) => query.state.data === undefined,
       },
     },
   })

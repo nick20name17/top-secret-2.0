@@ -28,6 +28,28 @@ function mockProducts(total = 30) {
   )
 }
 
+test('while the products load, the search stays and placeholders take the space of the list', async () => {
+  const response = Promise.withResolvers<undefined>()
+  worker.use(
+    http.get(`${apiUrl}/products`, async () => {
+      await response.promise
+      return HttpResponse.json(firstPage)
+    }),
+  )
+  await renderRoute('/products')
+  await expect.element(page.getByRole('searchbox', { name: 'Search products' })).toBeVisible()
+  const placeholderHeight = page
+    .getByRole('list', { name: 'Loading products' })
+    .element().clientHeight
+
+  response.resolve(undefined)
+
+  await expect.element(page.getByText('Essence Mascara Lash Princess')).toBeVisible()
+  expect(page.getByRole('list', { name: 'Products' }).element().clientHeight).toBe(
+    placeholderHeight,
+  )
+})
+
 test('lists the products of the page in the URL', async () => {
   mockProducts()
   await renderRoute('/products?page=2')

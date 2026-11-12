@@ -1,4 +1,4 @@
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Outlet, createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
@@ -23,20 +23,20 @@ export const Route = createFileRoute('/_authed')({
 function AuthedLayout() {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { data: user } = useSuspenseQuery(meQuery())
+  const { data: user } = useQuery(meQuery())
 
   useEffect(
     () =>
       subscribeSession(() => {
         // A token refresh writes the session too
         const session = getSession()
-        if (session?.userId === user.id) return
+        if (session?.userId === user?.id) return
         // reset refetches the new user; remove would leave pages on the old one
         if (session) void queryClient.resetQueries()
         else queryClient.removeQueries()
         void router.invalidate()
       }),
-    [queryClient, router, user.id],
+    [queryClient, router, user?.id],
   )
 
   return <Outlet />
