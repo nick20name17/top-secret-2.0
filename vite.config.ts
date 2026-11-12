@@ -23,7 +23,6 @@ export default defineConfig(({ mode }) => ({
     mode === 'test' && msw({ mode: 'worker-only' }),
   ],
   resolve: { tsconfigPaths: true },
-  optimizeDeps: { force: mode === 'test' },
   test: {
     include: ['src/**/*.test.{ts,tsx}'],
     setupFiles: ['src/test/setup.ts'],
