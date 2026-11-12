@@ -1,6 +1,6 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { APP_NAME } from '@/lib/app-name'
 
 export const Route = createFileRoute('/')({
@@ -9,15 +9,11 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <div className='flex p-6'>
-      <div className='flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose'>
-        <div>
-          <h1 className='font-medium'>{APP_NAME}</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className='mt-2'>Button</Button>
-        </div>
-      </div>
+    <div className='mx-auto flex max-w-2xl flex-col items-start gap-4 p-6'>
+      <h1 className='text-lg font-medium'>{APP_NAME}</h1>
+      <Link to='/products' className={buttonVariants()}>
+        Browse products
+      </Link>
     </div>
   )
 }

@@ -17,9 +17,9 @@
     "api:types": "bun --env-file=.env exec 'bunx openapi-typescript@7.13.0 $VITE_API_URL/openapi.json -o src/lib/api.gen.ts'",
     "routes": "bun --bun tsr generate",
     "typecheck": "bun run routes && tsc -b",
-    "doctor": "react-doctor --no-telemetry",
+    "doctor": "bash -o pipefail -c 'react-doctor --no-telemetry --blocking warning | sed \"/^Agent guidance/,/^ *$/d\"'",
     "audit": "bun audit --audit-level=high",
-    "check": "bun run routes && bun run format:check && bun run lint && tsc -b && bun run doctor --blocking warning && vitest run",
+    "check": "bun run routes && bun run format:check && bun run lint && tsc -b && bun run doctor && vitest run",
     "verify": "bun run check && bun run audit && bun run e2e"
   },
   "dependencies": {
@@ -76,8 +76,5 @@
     "minimatch": "11.0.4"
   },
   "packageManager": "bun@1.4.4",
-  "patchedDependencies": {
-    "react-doctor@0.9.22": "patches/react-doctor@0.9.22.patch"
-  },
   "trustedDependencies": []
 }
