@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PostToolUse: formats files and lints source files changed since the last tool call, so a broken rule shows at once
+# PostToolUse: formats and lints source files changed since the last tool call and lists their new comments
 set -uo pipefail
 
 input=$(cat)
@@ -28,10 +28,26 @@ bunx oxfmt --no-error-on-unmatched-pattern $files >/dev/null 2>&1
 hashes >"$linted_file"
 files=$(grep -E '\.tsx?$' <<<"$files") || exit 0
 
+# A new comment is reported once; after that, keeping it is the agent's decision
+seen_file="node_modules/.cache/claude-comments-${session:-default}"
+touch "$seen_file"
+comment_lines() {
+  grep -E '^[[:space:]]*(//|/\*|\*|\{/\*)|[[:space:]]//[[:space:]]' |
+    grep -vE '(oxlint|eslint)-disable|@ts-expect-error' | sed 's/^[[:space:]]*//' | sort -u
+}
+comments=$(for file in $files; do
+  comm -13 <(git show "HEAD:$file" 2>/dev/null | comment_lines) <(comment_lines <"$file") | sed "s|^|$file: |"
+done | grep -vxFf "$seen_file")
+
+status=0
 # Unused names are normal halfway through a change; bun run check still reports them
 # shellcheck disable=SC2086
-output=$(NO_COLOR=1 bunx oxlint --deny-warnings -A no-unused-vars $files 2>&1) && exit 0
-
-echo "$output" | tail -n 40 >&2
+output=$(NO_COLOR=1 bunx oxlint --deny-warnings -A no-unused-vars $files 2>&1 | tail -n 40) || status=2
 # Only exit 2 sends stderr to Claude
-exit 2
+[ $status = 2 ] && echo "$output" >&2
+if [ -n "$comments" ]; then
+  echo "$comments" >>"$seen_file"
+  printf 'New comments. Keep one only if it gives, in one line, a reason the code cannot show; delete the rest:\n%s\n' "$comments" >&2
+  status=2
+fi
+exit $status
