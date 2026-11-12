@@ -10,13 +10,13 @@
     "format:check": "oxfmt --check",
     "lint": "oxlint --deny-warnings",
     "lint:fix": "oxlint --fix",
-    "test": "vitest",
+    "test": "vitest run",
     "e2e": "playwright test",
     "ui:add": "sh -c 'yes n | shadcn add --yes \"$@\" && oxfmt src/components/ui && oxlint src/components/ui' --",
     "api:types": "bun --env-file=.env exec 'bunx openapi-typescript@7.13.0 $VITE_API_URL/openapi.json -o src/lib/api.gen.ts'",
     "typecheck": "bun --bun tsr generate && tsc -b",
     "doctor": "bash -o pipefail -c 'react-doctor --no-telemetry --blocking warning | sed \"/^Agent guidance/,/^ *$/d\"'",
-    "check": "bun run typecheck && bun run format:check && bun run lint && bun run doctor && vitest run",
+    "check": "bun run typecheck && bun run format:check && bun run lint && bun run doctor && bun run test",
     "verify": "bun run check && bun audit --audit-level=high && bun run e2e"
   },
   "dependencies": {
