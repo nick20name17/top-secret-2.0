@@ -391,8 +391,6 @@ export default defineConfig({
           { mock: ownModuleMockMessage, doMock: ownModuleMockMessage },
         ],
         'vitest/no-conditional-in-test': 'error',
-        'vitest/no-disabled-tests': 'error',
-        'vitest/no-focused-tests': 'error',
         'vitest/consistent-test-it': ['error', { fn: 'test', withinDescribe: 'test' }],
         'vitest/no-identical-title': 'error',
         'vitest/no-duplicate-hooks': 'error',

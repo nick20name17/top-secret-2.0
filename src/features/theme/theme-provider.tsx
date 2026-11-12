@@ -2,15 +2,11 @@ import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react
 import { z } from 'zod/mini'
 
 import {
-  ThemeProviderContext,
+  ThemeContext,
   themeSchema,
   type ResolvedTheme,
   type Theme,
-} from '@/features/theme/lib/theme-context'
-
-interface ThemeProviderProps {
-  children: ReactNode
-}
+} from '@/features/theme/use-theme'
 
 const STORAGE_KEY = 'theme'
 const THEME_COLORS: Record<ResolvedTheme, string> = {
@@ -63,7 +59,7 @@ function applyTheme(resolvedTheme: ResolvedTheme) {
   requestAnimationFrame(() => requestAnimationFrame(() => style.remove()))
 }
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState(readStoredTheme)
   const systemTheme = useSyncExternalStore(subscribeToSystemTheme, getSystemTheme)
   const resolvedTheme = theme === 'system' ? systemTheme : theme
@@ -77,9 +73,5 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     applyTheme(resolvedTheme)
   }, [resolvedTheme])
 
-  return (
-    <ThemeProviderContext value={{ theme, resolvedTheme, setTheme }}>
-      {children}
-    </ThemeProviderContext>
-  )
+  return <ThemeContext value={{ resolvedTheme, setTheme }}>{children}</ThemeContext>
 }

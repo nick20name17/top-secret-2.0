@@ -4,10 +4,8 @@ import { page } from 'vitest/browser'
 
 // Real response: GET https://dummyjson.com/products/1?select=title,price,thumbnail,description
 import mascara from '@/test/fixtures/products-1.json'
-import { worker } from '@/test/msw'
+import { apiUrl, worker } from '@/test/msw'
 import { renderRoute } from '@/test/render-route'
-
-const apiUrl = import.meta.env.VITE_API_URL
 
 test('a product page shows the product', async () => {
   worker.use(http.get(`${apiUrl}/products/1`, () => HttpResponse.json(mascara)))

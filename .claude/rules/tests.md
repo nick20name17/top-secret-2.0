@@ -14,7 +14,7 @@ paths:
 - Test the behaviour you own. Leave `src/components/ui`, generated files and library behaviour untested. The page for an unknown URL and the navigation after a click on a `<Link>` are the router's behaviour; a loader that turns an API 404 into `notFound()` and the URL a link points to are yours.
 - Mock only system boundaries: the network (MSW: `worker.use()` from `@/test/msw`), time, randomness. Use the real modules, hooks and providers you own.
 - Browser storage and cross-tab events are a system boundary too: write to them directly only to simulate another tab or corrupted data; otherwise go through the module's exports.
-- Copy mock response bodies from a real API response or its docs. A body written from the zod schema can never disagree with the code.
+- Copy mock response bodies from a real API response or its docs. A body written from the zod schema can never disagree with the code. For a case the API has no example of, such as an empty list, keep the real shape and change only what the case needs.
 - When a test fails, fix the code. Change the test only when the spec changed, and say so. Never skip a test, loosen an assertion or add a retry to make it pass.
 - Make tests deterministic: fake time, fixed data, and wait on a condition (`expect.element`, `expect.poll`, web-first assertions).
 - Make each test pass alone and in any order: before it ends, settle every request it started and restore real timers.

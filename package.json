@@ -19,7 +19,7 @@
     "typecheck": "bun run routes && tsc -b",
     "doctor": "react-doctor --no-telemetry",
     "audit": "bun audit --audit-level=high",
-    "check": "bun run routes && bun run format:check && bun run lint && bun run typecheck && bun run doctor --blocking warning && vitest run",
+    "check": "bun run routes && bun run format:check && bun run lint && tsc -b && bun run doctor --blocking warning && vitest run",
     "verify": "bun run check && bun run audit && bun run e2e"
   },
   "dependencies": {
