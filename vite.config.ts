@@ -27,7 +27,6 @@ export default defineConfig(({ mode }) => ({
   test: {
     include: ['src/**/*.test.{ts,tsx}'],
     setupFiles: ['src/test/setup.ts'],
-    // A failing assertion waits this long, so a red test reports in 5 s, not the browser default of 15
     testTimeout: 5000,
     browser: {
       enabled: true,
