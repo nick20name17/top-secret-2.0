@@ -32,7 +32,7 @@ files=$(grep -E '\.tsx?$' <<<"$files") || exit 0
 seen_file="node_modules/.cache/claude-comments-${session:-default}"
 touch "$seen_file"
 comment_lines() {
-  grep -E '^[[:space:]]*(//|/\*|\*|\{/\*)|[[:space:]]//[[:space:]]' |
+  grep -E '^[[:space:]]*(//|/\*|\*|\{/\*)' |
     grep -vE '(oxlint|eslint)-disable|@ts-expect-error' | sed 's/^[[:space:]]*//' | sort -u
 }
 comments=$(for file in $files; do
