@@ -6,7 +6,6 @@ import { SESSION_KEY, setSession } from '@/lib/session'
 // Real responses: GET https://dummyjson.com/users/1 (auth/me returns the same user),
 // POST auth/login from https://dummyjson.com/docs/auth
 import login from '@/test/fixtures/auth-login.json'
-import products from '@/test/fixtures/products.json'
 import user from '@/test/fixtures/users-1.json'
 import otherUser from '@/test/fixtures/users-2.json'
 import { worker } from '@/test/msw'
@@ -45,7 +44,7 @@ test('wrong credentials show the API message in the form', async () => {
   await userEvent.fill(page.getByLabelText('Password'), 'wrong')
   await userEvent.click(page.getByRole('button', { name: 'Sign in' }))
 
-  await expect.element(page.getByRole('alert')).toHaveTextContent('Invalid credentials')
+  await expect.element(page.getByRole('alert')).toMatchTextContent('Invalid credentials')
 })
 
 test('signing out opens the sign-in page', async () => {
@@ -161,10 +160,9 @@ test('a token refresh does not load the user again', async () => {
 
 test('a signed-in user sent to sign in opens the page from the redirect', async () => {
   signIn()
-  worker.use(http.get(`${apiUrl}/products`, () => HttpResponse.json(products)))
-  await renderRoute('/login?redirect=/products')
+  await renderRoute('/login?redirect=/profile')
 
-  await expect.element(page.getByRole('heading', { name: 'Products' })).toBeVisible()
+  await expect.element(page.getByRole('heading', { name: 'Emily Johnson' })).toBeVisible()
 })
 
 test('a broken stored session opens the sign-in page', async () => {
@@ -224,5 +222,5 @@ test('a network failure while signing in asks to check the connection', async ()
 
   await expect
     .element(page.getByRole('alert'))
-    .toHaveTextContent('Check your internet connection and try again.')
+    .toMatchTextContent('Check your internet connection and try again.')
 })
