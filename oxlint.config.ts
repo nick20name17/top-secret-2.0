@@ -351,6 +351,18 @@ export default defineConfig({
       },
     },
     {
+      files: ['e2e/*.spec.ts'],
+      rules: {
+        'no-restricted-imports': restrictedImports([
+          {
+            name: '@playwright/test',
+            importNames: ['test', 'expect'],
+            message: "Import test and expect from './test.ts': its test mocks the API.",
+          },
+        ]),
+      },
+    },
+    {
       files: ['e2e/**'],
       rules: {
         ...asErrors(playwright.configs['flat/recommended'].rules, 'playwright/'),

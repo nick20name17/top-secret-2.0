@@ -1,4 +1,27 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './test.ts'
+
+test('signing in from a protected page opens it, and the session survives a reload', async ({
+  page,
+}) => {
+  await page.goto('/profile')
+  await expect(page).toHaveURL('/login?redirect=%2Fprofile')
+
+  await page.getByLabel('Username').fill('emilys')
+  await page.getByLabel('Password').fill('emilyspass')
+  await page.getByRole('button', { name: 'Sign in' }).click()
+  await expect(page.getByRole('heading', { name: 'Emily Johnson' })).toBeVisible()
+
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Emily Johnson' })).toBeVisible()
+  await expect(page).toHaveURL('/profile')
+})
+
+test('a direct link to a product opens it and names the tab after it', async ({ page }) => {
+  await page.goto('/products/1')
+
+  await expect(page.getByRole('heading', { name: 'Essence Mascara Lash Princess' })).toBeVisible()
+  await expect(page).toHaveTitle('Essence Mascara Lash Princess')
+})
 
 test.describe('theme', () => {
   test.use({ colorScheme: 'dark' })
