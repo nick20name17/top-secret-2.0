@@ -1,10 +1,12 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 
+import { requireSession } from '@/features/auth/require-session'
 import { ProductForm } from '@/features/products/product-form'
 import { productDetailQuery } from '@/features/products/queries'
 
 export const Route = createFileRoute('/products_/$id/edit')({
+  beforeLoad: requireSession,
   component: EditProductPage,
 })
 

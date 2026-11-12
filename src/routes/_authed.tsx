@@ -1,22 +1,13 @@
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
-import { Outlet, createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { Outlet, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 import { meQuery } from '@/features/auth/queries'
+import { requireSession } from '@/features/auth/require-session'
 import { getSession, subscribeSession } from '@/lib/session'
 
 export const Route = createFileRoute('/_authed')({
-  beforeLoad: async ({ context, location }) => {
-    const toLogin = redirect({ to: '/login', search: { redirect: location.href }, replace: true })
-    if (!getSession()) throw toLogin
-    try {
-      await context.queryClient.query(meQuery())
-    } catch (error) {
-      // api cleared a session it could not refresh
-      if (!getSession()) throw toLogin
-      throw error
-    }
-  },
+  beforeLoad: requireSession,
   component: AuthedLayout,
 })
 
