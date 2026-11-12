@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query'
+import { type QueryClient, mutationOptions, queryOptions } from '@tanstack/react-query'
 import { z } from 'zod/mini'
 
 import { api } from '@/lib/api'
@@ -68,5 +68,17 @@ export function productDetailQuery(id: string) {
           signal,
         })
         .json(productDetailSchema),
+  })
+}
+
+export function updateProductMutation(client: QueryClient, id: number) {
+  return mutationOptions({
+    mutationFn: (input: Pick<ProductDetail, 'title' | 'price' | 'description'>) =>
+      api.put(`products/${id}`, { json: input }).json(productDetailSchema),
+    onSuccess: (product) => {
+      // The response is the saved product, so the product page needs no second request
+      client.setQueryData(productDetailQuery(String(id)).queryKey, product)
+      return client.invalidateQueries({ queryKey: ['products', 'list'] })
+    },
   })
 }
