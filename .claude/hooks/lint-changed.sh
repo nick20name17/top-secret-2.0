@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# PostToolUse: formats and lints source files changed since the last tool call and lists their new comments
 set -uo pipefail
 
 input=$(cat)

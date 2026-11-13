@@ -92,7 +92,6 @@ test('signing out in another tab opens the sign-in page', async () => {
   await expect.element(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
 })
 
-// access-1 is the first user's token, access-2 the second user's
 function signInWithTwoUsers() {
   const usersByToken: Record<string, typeof user> = {
     'Bearer access-1': user,

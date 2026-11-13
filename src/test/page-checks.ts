@@ -45,9 +45,7 @@ async function layoutProblemsAt(width: number) {
   )
 }
 
-// A layout shift is an element that moved on its own, such as content pushed down when data arrives.
-// A move within 500 ms of a user action is expected, as in the Cumulative Layout Shift metric;
-// the browser does not count a test's clicks as user actions, so their times are recorded here.
+// The browser does not count a test's clicks as user input, so a shift within 500 ms of one is allowed here
 const shifts: PerformanceEntry[] = []
 const shiftObserver = new PerformanceObserver((list) => shifts.push(...list.getEntries()))
 shiftObserver.observe({ type: 'layout-shift' })
@@ -68,7 +66,6 @@ function layoutShifts() {
     .map(({ node }) => `Moved on its own: ${node?.outerHTML.slice(0, 120)}`)
 }
 
-// The rules whose result depends on the theme
 const visualRules = ['color-contrast', 'link-in-text-block']
 
 // A visual rule axe could not decide, such as text on a gradient, counts as a problem
