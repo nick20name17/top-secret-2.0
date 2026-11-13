@@ -90,6 +90,9 @@ const pageRules = {
   'page-has-heading-one': { enabled: false },
 }
 
+// WCAG 2.2 AA: off in axe by default
+const touchRules = { 'target-size': { enabled: true } }
+
 async function pageProblems() {
   const wasDark = document.documentElement.classList.contains('dark')
   // Without transitions axe reads the final colours right after the theme changes
@@ -100,7 +103,9 @@ async function pageProblems() {
     ...(await layoutProblemsAt(1280)),
     // The width the tests run at, so the page is left at it
     ...(await layoutProblemsAt(414)),
-    ...(await axeProblems('light', { rules: page.getByRole('main').query() ? {} : pageRules })),
+    ...(await axeProblems('light', {
+      rules: { ...touchRules, ...(page.getByRole('main').query() ? {} : pageRules) },
+    })),
     ...(await axeProblems('dark', { runOnly: visualRules })),
   ]
   document.documentElement.classList.toggle('dark', wasDark)
