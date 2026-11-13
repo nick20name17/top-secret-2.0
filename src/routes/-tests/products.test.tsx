@@ -124,6 +124,7 @@ test('searching shows matching products and keeps the trimmed query in the URL',
 test('a search with no matches says so', async () => {
   worker.use(
     http.get(`${apiUrl}/products/search`, () =>
+      // From GET https://dummyjson.com/products/search?q=zzzqqq
       HttpResponse.json({ products: [], total: 0, skip: 0, limit: 0 }),
     ),
   )
