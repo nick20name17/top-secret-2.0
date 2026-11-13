@@ -121,6 +121,18 @@ test('searching shows matching products and keeps the trimmed query in the URL',
     .toHaveAttribute('href', '/products?q=phone&page=2')
 })
 
+test('a search with no matches says so', async () => {
+  worker.use(
+    http.get(`${apiUrl}/products/search`, () =>
+      // From GET https://dummyjson.com/products/search?q=zzzqqq
+      HttpResponse.json({ products: [], total: 0, skip: 0, limit: 0 }),
+    ),
+  )
+  await renderRoute('/products?q=zzz')
+
+  await expect.element(page.getByText('No products found')).toBeVisible()
+})
+
 test('a search link with a numeric query keeps the query', async () => {
   mockProducts()
   await renderRoute('/products?q=2024')

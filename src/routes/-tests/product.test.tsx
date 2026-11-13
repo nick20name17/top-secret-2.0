@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw'
-import { beforeEach, expect, test } from 'vitest'
+import { beforeEach, expect, test, vi } from 'vitest'
 import { page, userEvent } from 'vitest/browser'
 
 // Real response: GET https://dummyjson.com/products/1?select=title,price,thumbnail,description
@@ -31,6 +31,16 @@ test('a product the API does not have shows the not found page', async () => {
   await renderRoute('/products/999')
 
   await expect.element(page.getByRole('heading', { name: 'Page not found' })).toBeVisible()
+})
+
+test('a product the API sends in another shape shows the error page', async () => {
+  worker.use(
+    http.get(`${apiUrl}/products/1`, () => HttpResponse.json({ ...mascara, price: '9.99' })),
+  )
+  await renderRoute('/products/1')
+
+  await expect.element(page.getByRole('heading', { name: 'Something went wrong' })).toBeVisible()
+  vi.mocked(console.error).mockClear()
 })
 
 test('the product page links a signed-in user to its edit form', async () => {

@@ -1,5 +1,4 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
-import { z } from 'zod/mini'
 
 import {
   ThemeContext,
@@ -13,11 +12,10 @@ const THEME_COLORS: Record<ResolvedTheme, string> = {
   light: '#ffffff',
   dark: '#0a0a0a',
 }
-const storedThemeSchema = z.catch(themeSchema, 'system')
 
 function readStoredTheme(): Theme {
   try {
-    return storedThemeSchema.parse(localStorage.getItem(STORAGE_KEY))
+    return themeSchema.parse(localStorage.getItem(STORAGE_KEY))
   } catch {
     return 'system'
   }
