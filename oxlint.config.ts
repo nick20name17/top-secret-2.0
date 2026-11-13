@@ -235,6 +235,7 @@ export default defineConfig({
     'max-params': ['error', 3],
     complexity: ['error', 10],
     'no-nested-ternary': 'error',
+    'no-inline-comments': 'error',
     'no-warning-comments': [
       'error',
       {
