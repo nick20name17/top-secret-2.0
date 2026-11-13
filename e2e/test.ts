@@ -3,7 +3,6 @@ import { loadEnv } from 'vite'
 
 const { VITE_API_URL: apiUrl = '' } = loadEnv('production', process.cwd())
 
-// The recorded responses the unit tests use
 const fixtures: Record<string, string> = {
   'POST /auth/login': 'auth-login.json',
   'GET /auth/me': 'users-1.json',
