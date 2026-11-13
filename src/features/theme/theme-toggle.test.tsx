@@ -27,3 +27,16 @@ test('the toggle switches between dark and light and remembers the choice', asyn
   await userEvent.click(page.getByRole('button', { name: 'Toggle theme' }))
   await expect.poll(() => html.className).toMatch(/\blight\b/)
 })
+
+test('a stored theme the app does not know falls back to the system theme', async () => {
+  const toggle = await renderToggle()
+  const html = document.documentElement
+  await userEvent.click(page.getByRole('button', { name: 'Toggle theme' }))
+  await expect.poll(() => html.className).toMatch(/\bdark\b/)
+  await toggle.unmount()
+
+  localStorage.setItem('theme', 'purple')
+  await renderToggle()
+
+  await expect.poll(() => html.className).toMatch(/\blight\b/)
+})
