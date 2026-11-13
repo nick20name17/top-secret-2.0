@@ -1,11 +1,12 @@
 - Build UI from the shadcn components in `src/components/ui` and pass them layout classes only. Add a missing one with `bun run ui:add <name>`.
 - When the request needs something the API doesn't have (a field, a filter, an endpoint), ask the user how to get it before writing code.
+- In a new worktree, run `bun install` first: without it the tests fail with `NetworkError`.
 
 ## Architecture
 
 - Put each feature in `src/features/<name>/`. Its root files are its interface; its subfolders are private.
 - Keep modules deep: a small interface over a lot of behaviour. Add a root file only when a caller needs it, and an abstraction only when a second implementation exists.
-- Keep routes thin: the loader starts the queries and the component composes features. The router ignores `-`-prefixed folders: put UI that only one route uses in `-components/` next to it, and route tests in `src/routes/-tests/`.
+- Keep routes thin: the loader starts the queries and the component composes features. The router ignores `-`-prefixed folders: put UI that only one route uses and that knows no feature's data in `-components/` next to it, and route tests in `src/routes/-tests/`.
 - Start each page's queries in its loader and read them with `useQuery`. Await only the data the page cannot render without; start the rest with `void client.query(…).catch(noop)` and render its pending state.
 - Keep code where it is used until a second feature or route needs it; then move it into `src/components/`, `src/hooks/`, `src/lib/` or, for test helpers, `src/test/`. A second page with the same search form or the same search params is that moment.
 - Define a feature's server data in its `queries.ts` as `queryOptions()` factories, with each key next to its `queryFn`. Order key parts from generic to specific: `['todos', 'detail', id]`.
