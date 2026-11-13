@@ -7,8 +7,12 @@ function sticksOut(element: HTMLElement) {
   const wide = element.clientWidth > 0 && element.scrollWidth > element.clientWidth + 1
   const tall = element.clientHeight > 0 && element.scrollHeight > element.clientHeight + 1
   if (!wide && !tall) return false
+
+  const hitArea = ['::before', '::after'].some(
+    (part) => getComputedStyle(element, part).position === 'absolute',
+  )
   const { overflowX, overflowY } = getComputedStyle(element)
-  return (wide && overflowX === 'visible') || (tall && overflowY === 'visible')
+  return !hitArea && ((wide && overflowX === 'visible') || (tall && overflowY === 'visible'))
 }
 
 function isStretched(element: HTMLElement) {
@@ -98,9 +102,15 @@ async function pageProblems() {
   const problems = [
     ...layoutShifts(),
     ...(await layoutProblemsAt(1280)),
-    // The width the tests run at, so the page is left at it
-    ...(await layoutProblemsAt(414)),
-    ...(await axeProblems('light', { rules: page.getByRole('main').query() ? {} : pageRules })),
+    // Last, so the next test runs at the narrow width
+    ...(await layoutProblemsAt(320)),
+    ...(await axeProblems('light', {
+      // target-size is WCAG 2.2 AA, off in axe by default
+      rules: {
+        'target-size': { enabled: true },
+        ...(page.getByRole('main').query() ? {} : pageRules),
+      },
+    })),
     ...(await axeProblems('dark', { runOnly: visualRules })),
   ]
   document.documentElement.classList.toggle('dark', wasDark)
@@ -108,8 +118,19 @@ async function pageProblems() {
   return problems
 }
 
+// axe reads the colours of an element that is still fading in, such as an opening dialog
+function animationsEnd() {
+  return Promise.allSettled(
+    document
+      .getAnimations()
+      .filter(({ effect }) => effect?.getComputedTiming().endTime !== Infinity)
+      .map(({ finished }) => finished),
+  )
+}
+
 export async function expectSoundPage() {
   await new Promise(requestAnimationFrame)
+  await animationsEnd()
   const problems = document.body.childElementCount > 0 ? await pageProblems() : []
   await new Promise(requestAnimationFrame)
   shiftObserver.takeRecords()
