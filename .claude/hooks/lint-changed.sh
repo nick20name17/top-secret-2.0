@@ -32,11 +32,12 @@ seen_file="node_modules/.cache/claude-comments-${session:-default}"
 touch "$seen_file"
 comment_lines() {
   grep -E '^[[:space:]]*(//|/\*|\*|\{/\*)' |
-    grep -vE '(oxlint|eslint)-disable|@ts-expect-error' | sed 's/^[[:space:]]*//' | sort -u
+    grep -vE '(oxlint|eslint)-disable|@ts-expect-error|https?://' | sed 's/^[[:space:]]*//' | sort -u
 }
-comments=$(for file in $files; do
-  comm -13 <(git show "HEAD:$file" 2>/dev/null | comment_lines) <(comment_lines <"$file") | sed "s|^|$file: |"
-done | grep -vxFf "$seen_file")
+# Compared with every committed file, so a comment moved to another file is not new
+# shellcheck disable=SC2086
+comments=$(comm -13 <(git grep -hI '' HEAD -- src e2e | comment_lines) <(cat $files | comment_lines) |
+  grep -vxFf "$seen_file")
 
 status=0
 # Unused names are normal halfway through a change; bun run check still reports them

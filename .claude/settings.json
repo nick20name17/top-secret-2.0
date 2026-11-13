@@ -12,6 +12,17 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -d node_modules ] || bun install --frozen-lockfile >&2",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
