@@ -40,7 +40,7 @@ export function Pager({
 
   return (
     <Pagination className='justify-between'>
-      <PaginationContent>
+      <PaginationContent className='flex-wrap'>
         <PaginationItem>
           <PaginationPrevious
             to='.'

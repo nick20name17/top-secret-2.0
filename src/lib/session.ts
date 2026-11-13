@@ -1,6 +1,7 @@
 import { z } from 'zod/mini'
 
 import { apiSchema } from '@/lib/api-schema'
+import { stored } from '@/lib/stored'
 
 export const SESSION_KEY = 'session'
 
@@ -13,37 +14,15 @@ const sessionSchema = z.extend(tokensSchema, { userId: z.number() })
 
 export type Session = z.infer<typeof sessionSchema>
 
-const listeners = new Set<() => void>()
+const session = stored(SESSION_KEY, sessionSchema)
 
-export function getSession(): Session | undefined {
-  const stored = localStorage.getItem(SESSION_KEY)
-  if (!stored) return undefined
-  try {
-    const parsed = sessionSchema.safeParse(JSON.parse(stored))
-    return parsed.success ? parsed.data : undefined
-  } catch {
-    return undefined
-  }
-}
+export const getSession = session.get
+export const subscribeSession = session.subscribe
 
-export function setSession(session: Session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
-  for (const listener of listeners) listener()
+export function setSession(next: Session) {
+  session.set(next)
 }
 
 export function clearSession() {
-  localStorage.removeItem(SESSION_KEY)
-  for (const listener of listeners) listener()
-}
-
-export function subscribeSession(listener: () => void) {
-  function onStorage(event: StorageEvent) {
-    if (event.key === SESSION_KEY || event.key === null) listener()
-  }
-  listeners.add(listener)
-  window.addEventListener('storage', onStorage)
-  return () => {
-    listeners.delete(listener)
-    window.removeEventListener('storage', onStorage)
-  }
+  session.set(undefined)
 }
