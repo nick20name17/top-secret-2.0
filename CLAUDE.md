@@ -1,5 +1,6 @@
 - Build UI from the shadcn components in `src/components/ui` and pass them layout classes only. Add a missing one with `bun run ui:add <name>`.
 - When the API cannot do what the request needs (a field, a filter, two filters at once, an endpoint), stop and ask the user before writing code. Narrowing the request to fit the API is the user's decision.
+- When `bun run check` still fails after three rounds of fixes, stop and show the user the failure and what you tried.
 - In a new worktree, run `bun install` first: without it the tests fail with `NetworkError`.
 
 ## Architecture
