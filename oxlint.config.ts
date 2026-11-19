@@ -19,6 +19,10 @@ const callCountMessage =
   'Assert on the outcome, not on how often or in what order a mock was called.'
 const ownModuleMockMessage =
   'Mock only system boundaries (network, time, randomness); use the real modules you own.'
+const fakeMessage =
+  'Use the real implementation, and MSW (worker.use) for the network. A spy may only observe.'
+const flakeMessage =
+  'A longer timeout or a retry hides a flaky test. Wait on the condition the test depends on.'
 const userLocatorMessage =
   'Find elements the way a user does: getByRole, getByLabelText, getByText.'
 const wholeTextMessage =
@@ -28,7 +32,25 @@ const waitMessage =
 
 type Rules = NonNullable<Parameters<typeof defineConfig>[0]['rules']>
 
+const testCall =
+  'CallExpression:matches([callee.name=/^(test|describe)$/], [callee.object.name=/^(test|describe)$/], [callee.callee.object.name=/^(test|describe)$/])'
+
 const testRules: Rules = {
+  'eslint-js/no-restricted-syntax': [
+    'error',
+    {
+      selector: `${testCall} > ObjectExpression > Property[key.name='retry']`,
+      message: flakeMessage,
+    },
+    { selector: 'Property[key.name=/^(retries|repeats|timeout)$/]', message: flakeMessage },
+    { selector: `${testCall} > Literal[raw=/^\\d/]`, message: flakeMessage },
+    { selector: "CallExpression[callee.property.name='slow']", message: flakeMessage },
+    {
+      selector:
+        "CallExpression[callee.object.name='vi'][callee.property.name='fn'][arguments.length>0]",
+      message: fakeMessage,
+    },
+  ],
   'no-restricted-properties': [
     'error',
     ...['getByTestId', 'querySelector', 'querySelectorAll'].map((property) => ({
@@ -36,6 +58,9 @@ const testRules: Rules = {
       message: userLocatorMessage,
     })),
     { property: 'toHaveTextContent', message: wholeTextMessage },
+    ...['Implementation', 'ReturnValue', 'ResolvedValue', 'RejectedValue']
+      .flatMap((kind) => [`mock${kind}`, `mock${kind}Once`])
+      .map((property) => ({ property, message: fakeMessage })),
   ],
   'no-restricted-globals': [
     'error',
@@ -185,6 +210,7 @@ export default defineConfig({
     'eslint-plugin-playwright',
     'eslint-plugin-boundaries',
     'eslint-plugin-no-relative-import-paths',
+    { name: 'eslint-js', specifier: 'oxlint-plugin-eslint' },
   ],
   settings: {
     // Lets the boundaries plugin follow the '@/' alias
@@ -409,7 +435,12 @@ export default defineConfig({
         ],
         'vitest/no-restricted-vi-methods': [
           'error',
-          { mock: ownModuleMockMessage, doMock: ownModuleMockMessage },
+          {
+            mock: ownModuleMockMessage,
+            doMock: ownModuleMockMessage,
+            stubGlobal: fakeMessage,
+            setConfig: flakeMessage,
+          },
         ],
         'vitest/no-conditional-in-test': 'error',
         'vitest/consistent-test-it': ['error', { fn: 'test', withinDescribe: 'test' }],
