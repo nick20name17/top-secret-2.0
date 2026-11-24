@@ -29,6 +29,8 @@ const wholeTextMessage =
   'toHaveTextContent compares the whole text of the element. Use toMatchTextContent: it takes a part of the text or a RegExp.'
 const waitMessage =
   'Wait on a condition (expect.element, expect.poll, web-first assertions) or use fake timers.'
+const mockPollMessage =
+  'Poll what the user or the caller sees (the page, a returned value), or await the event the code emits.'
 
 type Rules = NonNullable<Parameters<typeof defineConfig>[0]['rules']>
 
@@ -49,6 +51,16 @@ const testRules: Rules = {
       selector:
         "CallExpression[callee.object.name='vi'][callee.property.name='fn'][arguments.length>0]",
       message: fakeMessage,
+    },
+    {
+      selector:
+        "CallExpression:matches([callee.object.name='expect'][callee.property.name='poll'], [callee.object.name='vi'][callee.property.name=/^wait(For|Until)$/]) MemberExpression[property.name=/^(mock|toHaveBeenCalled)/]",
+      message: mockPollMessage,
+    },
+    {
+      selector:
+        "MemberExpression[property.name=/^toHaveBeenCalled/] CallExpression[callee.object.name='expect'][callee.property.name='poll']",
+      message: mockPollMessage,
     },
   ],
   'no-restricted-properties': [
@@ -439,6 +451,7 @@ export default defineConfig({
             mock: ownModuleMockMessage,
             doMock: ownModuleMockMessage,
             stubGlobal: fakeMessage,
+            stubEnv: fakeMessage,
             setConfig: flakeMessage,
           },
         ],
